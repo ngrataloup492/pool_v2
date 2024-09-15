@@ -1501,7 +1501,7 @@ class pool extends eqLogic
 
     public function evaluateTemperatureWater() : float
     {
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() begin');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() begin');
 
         preg_match_all("/#([0-9]*)#/", $this->getConfiguration('temperature_water'), $matches);
         foreach ($matches[1] as $cmd_id) {
@@ -1514,10 +1514,15 @@ class pool extends eqLogic
             }
         }
 
-        $temperature_water = round(floatval(jeedom::evaluateExpression($this->getConfiguration('temperature_water'))), 1);
+        $value = jeedom::evaluateExpression($this->getConfiguration('temperature_water'));
+        if (is_numeric($value)) {
+            $temperature_water = round(floatval($value), 1);
+        } else {
+            $temperature_water = 0;
+        }
 
-        // log::add('pool', 'debug', $this->getHumanName() . 'temperature_water=' . $temperature_water);
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() end');
+        log::add('pool', 'debug', $this->getHumanName() . 'temperature_water=' . $temperature_water);
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() end');
 
         return $temperature_water;
     }
@@ -1560,7 +1565,7 @@ class pool extends eqLogic
 
     public function evaluateTemperatureOutdoor(): float
     {
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() begin');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() begin');
 
         preg_match_all("/#([0-9]*)#/", $this->getConfiguration('temperature_outdoor'), $matches);
         foreach ($matches[1] as $cmd_id) {
@@ -1573,11 +1578,15 @@ class pool extends eqLogic
             }
         }
 
-        $temperature_outdoor = round(floatval(jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor'))), 1);
+        $value = jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor'));
+        if (is_numeric($value)) {
+            $temperature_outdoor = round(floatval($value), 1);
+        } else {
+            $temperature_outdoor = 0;
+        })
 
-        // log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
-
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() end');
+        log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() end');
 
         return $temperature_outdoor;
     }
@@ -1607,7 +1616,7 @@ class pool extends eqLogic
 
     public function evaluateLeverSoleil(): float
     {
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() begin');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() begin');
 
         preg_match_all("/#([0-9]*)#/", $this->getConfiguration('lever_soleil'), $matches);
         foreach ($matches[1] as $cmd_id) {
@@ -1620,11 +1629,15 @@ class pool extends eqLogic
             }
         }
 
-        $lever_soleil = round(floatval(jeedom::evaluateExpression($this->getConfiguration('lever_soleil'))), 1);
-
-        // log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
-
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() end');
+        $value = jeedom::evaluateExpression($this->getConfiguration('lever_soleil'));
+        if (is_numeric($value)) {
+            $lever_soleil = floatval($value)
+        } else {
+            $lever_soleil = '';
+        })
+       
+        log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() end');
 
         return $lever_soleil;
     }
@@ -3639,7 +3652,7 @@ class poolCmd extends cmd
     {
         $eqLogic = $this->getEqLogic();
 
-        // log::add('pool', 'debug', $this->getHumanName() . 'execute() ' . $this->getLogicalId());
+        log::add('pool', 'debug', $this->getHumanName() . 'execute() ' . $this->getLogicalId());
 
         ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -3662,9 +3675,14 @@ class poolCmd extends cmd
                 $this->setCollectDate($date);
             }
 
-            // log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_water:' . round(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water')), 1));
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_water:' . jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water')));
 
-            return round(floatval(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water'))), 1);
+            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water');
+            if (is_numeric($value)) {
+                return round(floatval($value), 1);
+            } else {
+                return '';
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -3688,9 +3706,14 @@ class poolCmd extends cmd
                 $this->setCollectDate($date);
             }
 
-            // log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor:' . round(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor')), 1));
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor:' . jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor')));
 
-            return round(floatval(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor'))), 1);
+            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor');
+            if (is_numeric($value)) {
+                return round(floatval($value), 1);
+            } else {
+                return '';
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -3714,9 +3737,14 @@ class poolCmd extends cmd
                 $this->setCollectDate($date);
             }
 
-            // log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . round(jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil')), 1));
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil')));
 
-            return round(floatval(jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'))), 1);
+            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil');
+            if (is_numeric($value)) {
+                return floatval($value);
+            } else {
+                return '';
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
