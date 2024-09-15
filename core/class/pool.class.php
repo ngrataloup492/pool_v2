@@ -1514,7 +1514,7 @@ class pool extends eqLogic
             }
         }
 
-        $temperature_water = round(jeedom::evaluateExpression($this->getConfiguration('temperature_water')), 1);
+        $temperature_water = round(floatval(jeedom::evaluateExpression($this->getConfiguration('temperature_water'))), 1);
 
         // log::add('pool', 'debug', $this->getHumanName() . 'temperature_water=' . $temperature_water);
         // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() end');
@@ -1573,7 +1573,7 @@ class pool extends eqLogic
             }
         }
 
-        $temperature_outdoor = round(jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor')), 1);
+        $temperature_outdoor = round(floatval(jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor'))), 1);
 
         // log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
 
@@ -1620,7 +1620,7 @@ class pool extends eqLogic
             }
         }
 
-        $lever_soleil = round(jeedom::evaluateExpression($this->getConfiguration('lever_soleil')), 1);
+        $lever_soleil = round(floatval(jeedom::evaluateExpression($this->getConfiguration('lever_soleil'))), 1);
 
         // log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
 
@@ -3664,7 +3664,7 @@ class poolCmd extends cmd
 
             // log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_water:' . round(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water')), 1));
 
-            return round(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water')), 1);
+            return round(floatval(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water'))), 1);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -3690,7 +3690,7 @@ class poolCmd extends cmd
 
             // log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor:' . round(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor')), 1));
 
-            return round(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor')), 1);
+            return round(floatval(jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor'))), 1);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -3716,7 +3716,7 @@ class poolCmd extends cmd
 
             // log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . round(jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil')), 1));
 
-            return round(jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil')), 1);
+            return round(floatval(jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'))), 1);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
