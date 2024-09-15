@@ -1532,13 +1532,13 @@ class pool extends eqLogic
         $temperature = $this->getCmd(null, 'temperature');
         $temperature_water = $temperature->execCmd();
 
-        // log::add('pool', 'debug', $this->getHumanName() . 'temperature_water=' . $temperature_water);
+        log::add('pool', 'debug', $this->getHumanName() . 'temperature_water=' . $temperature_water);
 
         if ($this->getConfiguration('maxTimeUpdateTemp') != '') {
             if ($temperature->getCollectDate() != '' && strtotime($temperature->getCollectDate()) < strtotime('-' . $this->getConfiguration('maxTimeUpdateTemp') . ' minutes' . date('Y-m-d H:i:s'))) {
                 log::add('pool', 'error', $this->getHumanName() . __(" : Attention il n'y a pas eu de mise à jour de la température depuis ", __FILE__) . $this->getConfiguration('maxTimeUpdateTemp') . __(' mn', __FILE__));
 
-                // log::add('pool', 'debug', $this->getHumanName() . 'maxTimeUpdateTemp > evaluateTemperatureWater');
+                log::add('pool', 'debug', $this->getHumanName() . 'maxTimeUpdateTemp > evaluateTemperatureWater');
 
                 // La temperature n'a pas ete mise à jour depuis le temps definit par la config, on force la lecture
                 $temperature_water = $this->evaluateTemperatureWater();
@@ -1546,7 +1546,7 @@ class pool extends eqLogic
         } else {
             if ($temperature_water == '') {
 
-                // log::add('pool', 'debug', $this->getHumanName() . 'temperature_water == \'\' > evaluateTemperatureWater');
+                log::add('pool', 'debug', $this->getHumanName() . 'temperature_water == \'\' > evaluateTemperatureWater');
 
                 // La temperature n'a jamais ete mise a jour, on force la lecture
                 $temperature_water = $this->evaluateTemperatureWater();
@@ -1594,7 +1594,7 @@ class pool extends eqLogic
     public function getTemperatureOutdoor(): ?float
     {
         if ($this->getConfiguration('cfgChauffage', 'enabled') == 'enabled' || $this->getHivernage()) {
-            // log::add('pool', 'debug', $this->getHumanName() . 'hivernage=enabled');
+            log::add('pool', 'debug', $this->getHumanName() . 'hivernage=enabled');
 
             $temperature = $this->getCmd(null, 'temperature_outdoor');
             $temperature_outdoor = $temperature->execCmd();
@@ -1603,10 +1603,10 @@ class pool extends eqLogic
                 $temperature_outdoor = $this->evaluateTemperatureOutdoor();
             }
 
-            // log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
+            log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
 
         } else {
-            // log::add('pool', 'debug', $this->getHumanName() . 'hivernage=disabled');
+            log::add('pool', 'debug', $this->getHumanName() . 'hivernage=disabled');
 
             $temperature_outdoor = null;
         }
@@ -1645,7 +1645,7 @@ class pool extends eqLogic
     public function getLeverSoleil(): ?float
     {
         if ($this->getHivernage()) {
-            // log::add('pool', 'debug', $this->getHumanName() . 'hivernage=enabled');
+            log::add('pool', 'debug', $this->getHumanName() . 'hivernage=enabled');
 
             $heure = $this->getCmd(null, 'lever_soleil');
             $lever_soleil = $heure->execCmd();
@@ -1658,10 +1658,10 @@ class pool extends eqLogic
                 $lever_soleil = '0' . $lever_soleil;
             }
 
-            // log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
+            log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
 
         } else {
-            // log::add('pool', 'debug', $this->getHumanName() . 'hivernage=disabled');
+            log::add('pool', 'debug', $this->getHumanName() . 'hivernage=disabled');
 
             $lever_soleil = null;
         }
