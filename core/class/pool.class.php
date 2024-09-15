@@ -26,7 +26,7 @@ class pool extends eqLogic
 
     /* ************************Methode static*************************** */
 
-    public static function asservissement($_option): void
+    public static function asservissement($_option)
     {
         // log::add('pool', 'debug', 'asservissement() begin');
 
@@ -53,7 +53,7 @@ class pool extends eqLogic
         // log::add('pool', 'debug', 'asservissement() end');
     }
 
-    public static function arretTotal($_option): void
+    public static function arretTotal($_option)
     {
         // log::add('pool', 'debug', 'arretTotal() begin');
 
@@ -83,7 +83,7 @@ class pool extends eqLogic
         // log::add('pool', 'debug', 'arretTotal() end');
     }
 
-    public static function marcheForcee($_option): void
+    public static function marcheForcee($_option)
     {
         // log::add('pool', 'debug', 'marcheForcee() begin');
 
@@ -113,7 +113,7 @@ class pool extends eqLogic
         // log::add('pool', 'debug', 'marcheForcee() end');
     }
 
-    public static function pull(): void
+    public static function pull()
     {
         log::add('pool', 'debug', 'pull() begin');
 
@@ -160,7 +160,7 @@ class pool extends eqLogic
         log::add('pool', 'debug', 'pull() end');
     }
 
-    public static function deamon_info(): array
+    public static function deamon_info()
     {
         $return = array();
         $return['log'] = '';
@@ -173,7 +173,7 @@ class pool extends eqLogic
         return $return;
     }
 
-    public static function deamon_start($_debug = false): void
+    public static function deamon_start($_debug = false)
     {
         self::deamon_stop();
         $deamon_info = self::deamon_info();
@@ -187,7 +187,7 @@ class pool extends eqLogic
         $cron->run();
     }
 
-    public static function deamon_stop(): void
+    public static function deamon_stop()
     {
         $cron = cron::byClassAndFunction('pool', 'pull');
         if (!is_object($cron)) {
@@ -196,7 +196,7 @@ class pool extends eqLogic
         $cron->halt();
     }
 
-    public static function cron(): void
+    public static function cron()
     {
         log::add('pool', 'debug', 'cron() begin');
 
@@ -254,7 +254,7 @@ class pool extends eqLogic
         log::add('pool', 'debug', 'cron() end');
     }
 
-    public static function deadCmd(): array
+    public static function deadCmd()
     {
         // log::add('pool', 'debug', 'deadCmd() begin');
 
@@ -293,7 +293,7 @@ class pool extends eqLogic
         return $return;
     }
 
-    public static function testCmd($pool, $key, $return): array
+    public static function testCmd($pool, $key, $return)
     {
         foreach ($pool->getConfiguration($key) as $action) {
             if ($action['cmd'] != '' && strpos($action['cmd'], '#') !== false) {
@@ -307,7 +307,7 @@ class pool extends eqLogic
 
     /* **********************Methode d'instance************************* */
 
-    public static function stopDaemon(): void
+    public static function stopDaemon()
     {
         // log::add('pool', 'debug', 'stopDaemon() begin');
 
@@ -324,7 +324,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function activatingDevices(): void
+    public function activatingDevices()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'activatingDevices() begin');
 
@@ -456,7 +456,7 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . 'activatingDevices() end');
     }
 
-    public function processingTime($dureeHeures): array
+    public function processingTime($dureeHeures)
     {
         // Arrondi en minutes
         $dureeHeures = floor($dureeHeures * 60) / 60;
@@ -478,7 +478,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function getCoefficientAjustement(): float
+    public function getCoefficientAjustement()
     {
         switch ($this->getConfiguration('coefficientAjustement', '10')) {
             case '3':
@@ -573,7 +573,7 @@ class pool extends eqLogic
         return $coeff;
     }
 
-    public function calculateTimeFiltrationWithCurve($temperature_water): float
+    public function calculateTimeFiltrationWithCurve($temperature_water)
     {
         // Pour assurer un temps minimum de filtration la temperature de calcul est forcée a 10°C
         $temperature = max($temperature_water, 10.0);
@@ -602,7 +602,7 @@ class pool extends eqLogic
         return $dureeHeures;
     }
 
-    public function calculateTimeFiltrationWithTemperatureReducedByHalf($temperature_water): float
+    public function calculateTimeFiltrationWithTemperatureReducedByHalf($temperature_water)
     {
         // Calcul simplifié
         $dureeHeures = $temperature_water / 2.0;
@@ -618,7 +618,7 @@ class pool extends eqLogic
         return $dureeHeures;
     }
 
-    public function calculateTimeFiltration($temperature_water, $flgTomorrow): void
+    public function calculateTimeFiltration($temperature_water, $flgTomorrow)
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateTimeFiltration() begin');
 
@@ -929,7 +929,7 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateTimeFiltration() end');
     }
 
-    public function calculateStatusFiltration($temperature_water): void
+    public function calculateStatusFiltration($temperature_water)
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateStatusFiltration() begin');
 
@@ -1097,7 +1097,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function getHivernage(): bool
+    public function getHivernage()
     {
         $flgHivernage = false;
 
@@ -1120,7 +1120,7 @@ class pool extends eqLogic
         return $flgHivernage;
     }
 
-    public function getStatusHivernage($status): string
+    public function getStatusHivernage($status)
     {
         switch ($this->getConfiguration('cfgHivernage')) {
             case 'disabled':
@@ -1140,7 +1140,7 @@ class pool extends eqLogic
         return $status;
     }
 
-    public function getCoefficientAjustementHivernage(): float
+    public function getCoefficientAjustementHivernage()
     {
         switch ($this->getConfiguration('coefficientAjustementHivernage', '10')) {
             case '3':
@@ -1235,7 +1235,7 @@ class pool extends eqLogic
         return $coeff;
     }
 
-    public function calculateTimeFiltrationWithTemperatureHivernage($temperature_water): float
+    public function calculateTimeFiltrationWithTemperatureHivernage($temperature_water)
     {
         // Filtration (temperature / 3)
         $dureeHeures = ($temperature_water / 3.0);
@@ -1255,7 +1255,7 @@ class pool extends eqLogic
         return $dureeHeures;
     }
 
-    public function calculateTimeFiltrationHivernage($temperature_water, $lever_soleil, $flgTomorrow): void
+    public function calculateTimeFiltrationHivernage($temperature_water, $lever_soleil, $flgTomorrow)
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateTimeFiltrationHivernage() begin');
 
@@ -1329,7 +1329,7 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateTimeFiltrationHivernage() end');
     }
 
-    public function calculateStatusFiltrationHivernage($temperature_water, $temperature_outdoor, $lever_soleil): void
+    public function calculateStatusFiltrationHivernage($temperature_water, $temperature_outdoor, $lever_soleil)
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateStatusFiltrationHivernage() begin');
 
@@ -1499,7 +1499,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function evaluateTemperatureWater() : float
+    public function evaluateTemperatureWater()
     {
         log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() begin');
 
@@ -1514,12 +1514,13 @@ class pool extends eqLogic
             }
         }
 
-        $value = jeedom::evaluateExpression($this->getConfiguration('temperature_water'));
-        if (is_numeric($value)) {
-            $temperature_water = round(floatval($value), 1);
-        } else {
-            $temperature_water = 0;
-        }
+        // $value = jeedom::evaluateExpression($this->getConfiguration('temperature_water'));
+        // if (is_numeric($value)) {
+        //     $temperature_water = round(floatval($value), 1);
+        // } else {
+        //     $temperature_water = 0;
+        // }
+        $temperature_water = round((float)jeedom::evaluateExpression($this->getConfiguration('temperature_water')), 1);
 
         log::add('pool', 'debug', $this->getHumanName() . 'temperature_water=' . $temperature_water);
         log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() end');
@@ -1527,7 +1528,7 @@ class pool extends eqLogic
         return $temperature_water;
     }
 
-    public function getTemperatureWater(): float
+    public function getTemperatureWater()
     {
         $temperature = $this->getCmd(null, 'temperature');
         $temperature_water = $temperature->execCmd();
@@ -1563,7 +1564,7 @@ class pool extends eqLogic
         return $temperature_water;
     }
 
-    public function evaluateTemperatureOutdoor(): float
+    public function evaluateTemperatureOutdoor()
     {
         log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() begin');
 
@@ -1578,12 +1579,13 @@ class pool extends eqLogic
             }
         }
 
-        $value = jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor'));
-        if (is_numeric($value)) {
-            $temperature_outdoor = round(floatval($value), 1);
-        } else {
-            $temperature_outdoor = 0;
-        }
+        // $value = jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor'));
+        // if (is_numeric($value)) {
+        //     $temperature_outdoor = round(floatval($value), 1);
+        // } else {
+        //     $temperature_outdoor = 0;
+        // }
+        $temperature_outdoor = round((float)jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor')), 1);
 
         log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
         log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() end');
@@ -1591,7 +1593,7 @@ class pool extends eqLogic
         return $temperature_outdoor;
     }
 
-    public function getTemperatureOutdoor(): ?float
+    public function getTemperatureOutdoor()
     {
         if ($this->getConfiguration('cfgChauffage', 'enabled') == 'enabled' || $this->getHivernage()) {
             log::add('pool', 'debug', $this->getHumanName() . 'hivernage=enabled');
@@ -1614,7 +1616,7 @@ class pool extends eqLogic
         return $temperature_outdoor;
     }
 
-    public function evaluateLeverSoleil(): float
+    public function evaluateLeverSoleil()
     {
         log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() begin');
 
@@ -1629,12 +1631,13 @@ class pool extends eqLogic
             }
         }
 
-        $value = jeedom::evaluateExpression($this->getConfiguration('lever_soleil'));
-        if (is_numeric($value)) {
-            $lever_soleil = floatval($value);
-        } else {
-            $lever_soleil = '';
-        }
+        // $value = jeedom::evaluateExpression($this->getConfiguration('lever_soleil'));
+        // if (is_numeric($value)) {
+        //     $lever_soleil = floatval($value);
+        // } else {
+        //     $lever_soleil = '';
+        // }
+        $lever_soleil = (float)jeedom::evaluateExpression($this->getConfiguration('lever_soleil')));
        
         log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
         log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() end');
@@ -1642,7 +1645,7 @@ class pool extends eqLogic
         return $lever_soleil;
     }
 
-    public function getLeverSoleil(): ?float
+    public function getLeverSoleil()
     {
         if ($this->getHivernage()) {
             log::add('pool', 'debug', $this->getHumanName() . 'hivernage=enabled');
@@ -1671,7 +1674,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executeSurpresseurOn(): void
+    public function executeSurpresseurOn()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeSurpresseurOn begin');
 
@@ -1693,7 +1696,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executeFiltreSableLavageOn(): void
+    public function executeFiltreSableLavageOn()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeFiltreSableLavageOn begin');
 
@@ -1796,7 +1799,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executePoolStop(): void
+    public function executePoolStop()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executePoolStop begin');
 
@@ -1817,7 +1820,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executeResetCalcul(): void
+    public function executeResetCalcul()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeResetCalcul begin');
 
@@ -1873,7 +1876,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function refreshFiltration(): void
+    public function refreshFiltration()
     {
         $cmdFiltration = $this->getCmd(null, 'filtration');
 
@@ -1889,7 +1892,7 @@ class pool extends eqLogic
         }
     }
 
-    public function filtrationOn($_repeat = false): void
+    public function filtrationOn($_repeat = false)
     {
         $cmdFiltration = $this->getCmd(null, 'filtration');
 
@@ -1921,7 +1924,7 @@ class pool extends eqLogic
         $cmdFiltration->event(1);
     }
 
-    public function filtrationStop($_repeat = false): void
+    public function filtrationStop($_repeat = false)
     {
         $cmdFiltration = $this->getCmd(null, 'filtration');
 
@@ -1955,7 +1958,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function refreshSurpresseur(): void
+    public function refreshSurpresseur()
     {
         $cmdSurpresseur = $this->getCmd(null, 'surpresseur');
 
@@ -1977,7 +1980,7 @@ class pool extends eqLogic
         }
     }
 
-    public function surpresseurOn($_repeat = false): void
+    public function surpresseurOn($_repeat = false)
     {
         $cmdSurpresseur = $this->getCmd(null, 'surpresseur');
 
@@ -2009,7 +2012,7 @@ class pool extends eqLogic
         $cmdSurpresseur->event(1);
     }
 
-    public function surpresseurStop($_repeat = false): void
+    public function surpresseurStop($_repeat = false)
     {
         $cmdSurpresseur = $this->getCmd(null, 'surpresseur');
 
@@ -2043,7 +2046,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function refreshTraitement(): void
+    public function refreshTraitement()
     {
         $cmdTraitement = $this->getCmd(null, 'traitement');
 
@@ -2065,7 +2068,7 @@ class pool extends eqLogic
         }
     }
 
-    public function traitementOn($_repeat = false): void
+    public function traitementOn($_repeat = false)
     {
         $cmdTraitement = $this->getCmd(null, 'traitement');
 
@@ -2097,7 +2100,7 @@ class pool extends eqLogic
         $cmdTraitement->event(1);
     }
 
-    public function traitementStop($_repeat = false): void
+    public function traitementStop($_repeat = false)
     {
         $cmdTraitement = $this->getCmd(null, 'traitement');
 
@@ -2131,7 +2134,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function refreshChauffage(): void
+    public function refreshChauffage()
     {
         $cmdChauffage = $this->getCmd(null, 'chauffage');
 
@@ -2153,7 +2156,7 @@ class pool extends eqLogic
         }
     }
 
-    public function chauffageOn($_repeat = false): void
+    public function chauffageOn($_repeat = false)
     {
         $cmdChauffage = $this->getCmd(null, 'chauffage');
 
@@ -2185,7 +2188,7 @@ class pool extends eqLogic
         $cmdChauffage->event(1);
     }
 
-    public function chauffageStop($_repeat = false): void
+    public function chauffageStop($_repeat = false)
     {
         $cmdChauffage = $this->getCmd(null, 'chauffage');
 
@@ -2219,7 +2222,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function asservissementOff($asservissement): void
+    public function asservissementOff($asservissement)
     {
         // log::add('pool', 'debug', $this->getHumanName() . ' : asservissementOff');
 
@@ -2239,7 +2242,7 @@ class pool extends eqLogic
         }
     }
 
-    public function asservissementOn($_trigger_id): bool
+    public function asservissementOn($_trigger_id)
     {
         // log::add('pool', 'debug', $this->getHumanName() . ' : asservissementOn');
 
@@ -2262,7 +2265,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function arretTotalOff($arretTotal): void
+    public function arretTotalOff($arretTotal)
     {
         // log::add('pool', 'debug', $this->getHumanName() . ' : arretTotalOff');
 
@@ -2282,7 +2285,7 @@ class pool extends eqLogic
         }
     }
 
-    public function arretTotalOn($_trigger_id): bool
+    public function arretTotalOn($_trigger_id)
     {
         // log::add('pool', 'debug', $this->getHumanName() . ' : arretTotalOn');
 
@@ -2305,7 +2308,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function marcheForceeOff($marcheForcee): void
+    public function marcheForceeOff($marcheForcee)
     {
         // log::add('pool', 'debug', $this->getHumanName() . ' : marcheForceeOff');
 
@@ -2325,7 +2328,7 @@ class pool extends eqLogic
         }
     }
 
-    public function marcheForceeOn($_trigger_id): bool
+    public function marcheForceeOn($_trigger_id)
     {
         // log::add('pool', 'debug', $this->getHumanName() . ' : marcheForceeOn');
 
@@ -2349,7 +2352,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executeAsservissementActif(): void
+    public function executeAsservissementActif()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeAsservissementActif begin');
 
@@ -2362,7 +2365,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executeAsservissementAuto(): void
+    public function executeAsservissementAuto()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeAsservissementAuto begin');
 
@@ -2375,7 +2378,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executeAsservissementInactif(): void
+    public function executeAsservissementInactif()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeAsservissementInactif begin');
 
@@ -2388,7 +2391,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executeSaison(): void
+    public function executeSaison()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeSaison begin');
 
@@ -2401,7 +2404,7 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function executeHivernage(): void
+    public function executeHivernage()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeHivernage begin');
 
@@ -2414,17 +2417,17 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    public function preInsert(): void
+    public function preInsert()
     {
 
     }
 
-    public function postInsert(): void
+    public function postInsert()
     {
 
     }
 
-    public function preRemove(): void
+    public function preRemove()
     {
         $cron = cron::byClassAndFunction('pool', 'pull', array('pool_id' => intval($this->getId())));
         if (is_object($cron)) {
@@ -2448,7 +2451,7 @@ class pool extends eqLogic
         }
     }
 
-    public function preSave(): void
+    public function preSave()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'preSave() begin');
 
@@ -2571,7 +2574,7 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . 'preSave() end');
     }
 
-    public function postSave(): void
+    public function postSave()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'postSave() begin');
 
@@ -3562,22 +3565,22 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . 'postSave() end');
     }
 
-    public function preUpdate(): void
+    public function preUpdate()
     {
 
     }
 
-    public function postUpdate(): void
+    public function postUpdate()
     {
 
     }
 
-    public function postRemove(): void
+    public function postRemove()
     {
 
     }
 
-    public function runtimeByDay($_startDate = null, $_endDate = null): array
+    public function runtimeByDay($_startDate = null, $_endDate = null)
     {
         // log::add('pool', 'debug', 'runtimeByDay()');
         // log::add('pool', 'debug', '$_startDate:'.$_startDate);
@@ -3643,12 +3646,12 @@ class poolCmd extends cmd
 
     /*     * *********************Methode d'instance************************* */
 
-    public function dontRemoveCmd(): bool
+    public function dontRemoveCmd()
     {
         return true;
     }
 
-    public function execute($_options = array()): void
+    public function execute($_options = array())
     {
         $eqLogic = $this->getEqLogic();
 
@@ -3675,14 +3678,15 @@ class poolCmd extends cmd
                 $this->setCollectDate($date);
             }
 
-            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_water:' . jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water')));
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_water:' . round((float)jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water')), 1));
 
-            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water'));
-            if (is_numeric($value)) {
-                return round(floatval($value), 1);
-            } else {
-                return '';
-            }
+            // $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water'));
+            // if (is_numeric($value)) {
+            //     return round(floatval($value), 1);
+            // } else {
+            //     return 0;
+            // }
+            return round((float)jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water')), 1);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -3706,14 +3710,15 @@ class poolCmd extends cmd
                 $this->setCollectDate($date);
             }
 
-            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor:' . jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor')));
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor:' . round((float)jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor')), 1));
 
-            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor'));
-            if (is_numeric($value)) {
-                return round(floatval($value), 1);
-            } else {
-                return '';
-            }
+            // $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor'));
+            // if (is_numeric($value)) {
+            //     return round(floatval($value), 1);
+            // } else {
+            //     return 0;
+            // }
+            return round((float)jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor')), 1);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -3737,14 +3742,15 @@ class poolCmd extends cmd
                 $this->setCollectDate($date);
             }
 
-            log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil')));
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . (float)jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil')));
 
-            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
-            if (is_numeric($value)) {
-                return floatval($value);
-            } else {
-                return '';
-            }
+            // $value = jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
+            // if (is_numeric($value)) {
+            //     return floatval($value);
+            // } else {
+            //     return 0600;
+            // }
+            return (float)jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////
