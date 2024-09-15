@@ -115,13 +115,13 @@ class pool extends eqLogic
 
     public static function pull(): void
     {
-        // log::add('pool', 'debug', 'pull() begin');
+        log::add('pool', 'debug', 'pull() begin');
 
         foreach (pool::byType('pool') as $pool) {
 
             if ($pool->getIsEnable() == 1) {
 
-                // log::add('pool', 'debug', $pool->getHumanName());
+                log::add('pool', 'debug', $pool->getHumanName());
 
                 if ($pool->getCmd(null, 'filtrationSurpresseur')->execCmd() == 1) {
                     $timeFin = $pool->getCmd(null, 'filtrationTempsRestant')->execCmd();
@@ -157,7 +157,7 @@ class pool extends eqLogic
             }
         }
 
-        // log::add('pool', 'debug', 'pull() end');
+        log::add('pool', 'debug', 'pull() end');
     }
 
     public static function deamon_info(): array
@@ -198,12 +198,12 @@ class pool extends eqLogic
 
     public static function cron(): void
     {
-        // log::add('pool', 'debug', 'cron() begin');
+        log::add('pool', 'debug', 'cron() begin');
 
         foreach (pool::byType('pool') as $pool) {
             if ($pool->getIsEnable() == 1) {
 
-                // log::add('pool', 'debug', $pool->getHumanName());
+                log::add('pool', 'debug', $pool->getHumanName());
 
                 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -251,7 +251,7 @@ class pool extends eqLogic
             }
         }
 
-        // log::add('pool', 'debug', 'cron() end');
+        log::add('pool', 'debug', 'cron() end');
     }
 
     public static function deadCmd(): array
@@ -1583,7 +1583,7 @@ class pool extends eqLogic
             $temperature_outdoor = round(floatval($value), 1);
         } else {
             $temperature_outdoor = 0;
-        })
+        }
 
         log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
         log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() end');
@@ -1631,10 +1631,10 @@ class pool extends eqLogic
 
         $value = jeedom::evaluateExpression($this->getConfiguration('lever_soleil'));
         if (is_numeric($value)) {
-            $lever_soleil = floatval($value)
+            $lever_soleil = floatval($value);
         } else {
             $lever_soleil = '';
-        })
+        }
        
         log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
         log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() end');
@@ -3677,7 +3677,7 @@ class poolCmd extends cmd
 
             log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_water:' . jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water')));
 
-            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water');
+            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water'));
             if (is_numeric($value)) {
                 return round(floatval($value), 1);
             } else {
@@ -3708,7 +3708,7 @@ class poolCmd extends cmd
 
             log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor:' . jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor')));
 
-            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor');
+            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor'));
             if (is_numeric($value)) {
                 return round(floatval($value), 1);
             } else {
@@ -3739,7 +3739,7 @@ class poolCmd extends cmd
 
             log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil')));
 
-            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil');
+            $value = jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
             if (is_numeric($value)) {
                 return floatval($value);
             } else {
