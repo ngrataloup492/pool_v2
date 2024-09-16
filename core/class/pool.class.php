@@ -1581,7 +1581,7 @@ class pool extends eqLogic
 
         $temperature_outdoor = jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor'));
         // log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
-      
+
         if (is_numeric($value)) {
             $temperature_outdoor = round(floatval($value), 1);
         } else {
@@ -3711,7 +3711,7 @@ class poolCmd extends cmd
 
             $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor'));
             log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor:' . $value);
-        
+
             if (is_numeric($value)) {
                 return round(floatval($value), 1);
             } else {
