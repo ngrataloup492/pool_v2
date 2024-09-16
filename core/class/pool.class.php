@@ -1501,7 +1501,7 @@ class pool extends eqLogic
 
     public function evaluateTemperatureWater()
     {
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() begin');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() begin');
 
         preg_match_all("/#([0-9]*)#/", $this->getConfiguration('temperature_water'), $matches);
         foreach ($matches[1] as $cmd_id) {
@@ -1515,7 +1515,7 @@ class pool extends eqLogic
         }
 
         $temperature_water = jeedom::evaluateExpression($this->getConfiguration('temperature_water'));
-        // log::add('pool', 'debug', $this->getHumanName() . 'temperature_water=' . $temperature_water);
+        log::add('pool', 'debug', $this->getHumanName() . 'temperature_water= (' . $temperature_water. ')');
         
         if (is_numeric($temperature_water)) {
             $temperature_water = round(floatval($temperature_water), 1);
@@ -1523,7 +1523,7 @@ class pool extends eqLogic
             $temperature_water = 10; // Valeur initiale 10.0°C si pas de configuration
         }
 
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() end');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() end');
 
         return $temperature_water;
     }
@@ -1566,7 +1566,7 @@ class pool extends eqLogic
 
     public function evaluateTemperatureOutdoor()
     {
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() begin');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() begin');
 
         preg_match_all("/#([0-9]*)#/", $this->getConfiguration('temperature_outdoor'), $matches);
         foreach ($matches[1] as $cmd_id) {
@@ -1580,7 +1580,7 @@ class pool extends eqLogic
         }
 
         $temperature_outdoor = jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor'));
-        // log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
+        log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor= (' . $temperature_outdoor . ')');
 
         if (is_numeric($temperature_outdoor)) {
             $temperature_outdoor = round(floatval($temperature_outdoor), 1);
@@ -1588,7 +1588,7 @@ class pool extends eqLogic
             $temperature_outdoor = 15; // Valeur initiale 15.0°C si pas de configuration
         }
 
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() end');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() end');
 
         return $temperature_outdoor;
     }
@@ -1618,7 +1618,7 @@ class pool extends eqLogic
 
     public function evaluateLeverSoleil()
     {
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() begin');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() begin');
 
         preg_match_all("/#([0-9]*)#/", $this->getConfiguration('lever_soleil'), $matches);
         foreach ($matches[1] as $cmd_id) {
@@ -1632,7 +1632,7 @@ class pool extends eqLogic
         }
 
         $lever_soleil = jeedom::evaluateExpression($this->getConfiguration('lever_soleil'));
-        // log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
+        log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil= (' . $lever_soleil . ')');
 
         if ($lever_soleil != '') {
             $lever_soleil = $value;
@@ -1640,7 +1640,7 @@ class pool extends eqLogic
             $lever_soleil = "06:00"; // Valeur initiale 06:00 si pas de configuration
         }
 
-        // log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() end');
+        log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() end');
 
         return $lever_soleil;
     }
@@ -3655,7 +3655,7 @@ class poolCmd extends cmd
     {
         $eqLogic = $this->getEqLogic();
 
-        log::add('pool', 'debug', $this->getHumanName() . 'execute() ' . $this->getLogicalId());
+        log::add('pool', 'debug', $this->getHumanName() . ' execute() ' . $this->getLogicalId());
 
         ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -3679,7 +3679,7 @@ class poolCmd extends cmd
             }
 
             $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_water'));
-            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_water:' . $value);
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_water: (' . $value. ')');
 
             if (is_numeric($value)) {
                 return round(floatval($value), 1);
@@ -3710,7 +3710,7 @@ class poolCmd extends cmd
             }
 
             $value = jeedom::evaluateExpression($eqLogic->getConfiguration('temperature_outdoor'));
-            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor:' . $value);
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() temperature_outdoor: (' . $value. ')');
 
             if (is_numeric($value)) {
                 return round(floatval($value), 1);
@@ -3741,7 +3741,7 @@ class poolCmd extends cmd
             }
 
             $value = jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
-            log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . $value);
+            log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil: (' . $value. ')');
 
             if ($value != '') {
                 return $value;
