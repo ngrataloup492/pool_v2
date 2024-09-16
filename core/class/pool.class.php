@@ -1631,7 +1631,7 @@ class pool extends eqLogic
             }
         }
 
-        $lever_soleil = jeedom::evaluateExpression($this->getConfiguration('lever_soleil')));
+        $lever_soleil = jeedom::evaluateExpression($this->getConfiguration('lever_soleil'));
         // log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
 
         if ($lever_soleil != '') {
