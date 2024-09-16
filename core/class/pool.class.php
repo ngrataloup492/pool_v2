@@ -1582,8 +1582,8 @@ class pool extends eqLogic
         $temperature_outdoor = jeedom::evaluateExpression($this->getConfiguration('temperature_outdoor'));
         // log::add('pool', 'debug', $this->getHumanName() . 'temperature_outdoor=(' . $temperature_outdoor . ')');
 
-        if (is_numeric($value)) {
-            $temperature_outdoor = round(floatval($value), 1);
+        if (is_numeric($temperature_outdoor)) {
+            $temperature_outdoor = round(floatval($temperature_outdoor), 1);
         } else {
             $temperature_outdoor = 15; // Valeur initiale 15.0°C si pas de configuration
         }
