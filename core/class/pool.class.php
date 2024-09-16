@@ -3703,7 +3703,7 @@ class poolCmd extends cmd
                     $cmd = cmd::byId($cmd_id);
                     if (is_object($cmd) && $cmd->getType() == 'info') {
                         $cmd->execCmd();
-                        if ($date == '' || strtotime($date) < strtotime($$cmd->getCollectDate())) {
+                        if ($date == '' || strtotime($date) < strtotime($cmd->getCollectDate())) {
                             $date = $cmd->getCollectDate();
                         }
                         break;
@@ -3736,7 +3736,7 @@ class poolCmd extends cmd
                     $cmd = cmd::byId($cmd_id);
                     if (is_object($cmd) && $cmd->getType() == 'info') {
                         $cmd->execCmd();
-                        if ($date == '' || strtotime($date) < strtotime($$cmd->getCollectDate())) {
+                        if ($date == '' || strtotime($date) < strtotime($cmd->getCollectDate())) {
                             $date = $cmd->getCollectDate();
                         }
                         break;
@@ -3749,7 +3749,7 @@ class poolCmd extends cmd
 
             // log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . (float)jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil')));
 
-            return (float)jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
+            return jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
 
             // $value = jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
             // if (is_numeric($value)) {
