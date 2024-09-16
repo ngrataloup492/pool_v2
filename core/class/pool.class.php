@@ -1634,10 +1634,10 @@ class pool extends eqLogic
         $lever_soleil = jeedom::evaluateExpression($this->getConfiguration('lever_soleil')));      
         // log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
 
-        if (is_numeric($lever_soleil)) {
-            $lever_soleil = floatval($lever_soleil);
+        if ($lever_soleil != '') {
+            $lever_soleil = $value;
         } else {
-            $lever_soleil = 600; // Valeur initiale 06:00 si pas de configuration
+            $lever_soleil = "06:00"; // Valeur initiale 06:00 si pas de configuration
         }
 
         // log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() end');
@@ -3743,10 +3743,10 @@ class poolCmd extends cmd
             $value = jeedom::evaluateExpression($eqLogic->getConfiguration('lever_soleil'));
             log::add('pool', 'debug', $this->getHumanName() . ' execute() lever_soleil:' . $value);
 
-            if (is_numeric($value)) {
-                return floatval($value);
+            if ($value != '') {
+                return $value;
             } else {
-                return 600; // Valeur initiale 06:00 si pas de configuration
+                return "06:00"; // Valeur initiale 06:00 si pas de configuration
             }
         }
 
