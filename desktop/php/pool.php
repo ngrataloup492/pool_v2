@@ -725,14 +725,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
                         <label class="col-sm-2 control-label">{{Temps de lavage du filtre à sable (min)}}</label>
                         <div class="col-sm-2">
                             <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="lavageDuree" placeholder="" >
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
+                                <option value="0.5">0.5</option>
+                                <option value="1.0">1</option>
+                                <option value="1.5">1.5</option>
+                                <option value="2.0">2</option>
+                                <option value="2.5">2.5</option>
+                                <option value="3.0">3</option>
+                                <option value="3.5">3.5</option>
+                                <option value="4.0">4</option>
+                                <option value="4.5">4.5</option>
+                                <option value="5.0">5</option>
+                                <option value="5.5">5.5</option>
+                                <option value="6.0">6</option>
+                                <option value="6.5">6.5</option>
+                                <option value="7.0">7</option>
+                                <option value="7.5">7.5</option>
+                                <option value="8.0">8</option>
                             </select>
                         </div>
                     </div>
@@ -741,15 +749,23 @@ $eqLogics = eqLogic::byType($plugin->getId());
                         <label class="col-sm-2 control-label">{{Temps de rinçage du filtre à sable (min)}}</label>
                         <div class="col-sm-2">
                             <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="rincageDuree" placeholder="" >
-                                <option value="0">0</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
+                                <option value="0.0">0</option>
+                                <option value="0.5">0.5</option>
+                                <option value="1.0">1</option>
+                                <option value="1.5">1.5</option>
+                                <option value="2.0">2</option>
+                                <option value="2.5">2.5</option>
+                                <option value="3.0">3</option>
+                                <option value="3.5">3.5</option>
+                                <option value="4.0">4</option>
+                                <option value="4.5">4.5</option>
+                                <option value="5.0">5</option>
+                                <option value="5.5">5.5</option>
+                                <option value="6.0">6</option>
+                                <option value="6.5">6.5</option>
+                                <option value="7.0">7</option>
+                                <option value="7.5">7.5</option>
+                                <option value="8.0">8</option>
                             </select>
                         </div>
                     </div>
