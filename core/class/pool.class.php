@@ -368,7 +368,7 @@ class pool extends eqLogic
             }
         }
 
-        if ($this->getCmd(null, 'arretTotal')->execCmd() == 0) {
+        if ($this->getCmd(null, 'arretTotal')->execCmd() == 0 || $this->getCmd(null, 'arretTotal')->execCmd() == '') {
 
             if ($this->getCmd(null, 'marcheForcee')->execCmd() == 1) {
 
@@ -391,8 +391,8 @@ class pool extends eqLogic
             $this->getCmd(null, 'asservissementStatus')->event($status);
         }
 
-        if ($this->getCmd(null, 'arretTotal')->execCmd() == 0) {
-            if ($this->getCmd(null, 'filtrationLavage')->execCmd() == 0) {
+        if ($this->getCmd(null, 'arretTotal')->execCmd() == 0 || $this->getCmd(null, 'arretTotal')->execCmd() == '') {
+            if ($this->getCmd(null, 'filtrationLavage')->execCmd() == 0 || $this->getCmd(null, 'filtrationLavage')->execCmd() == '') {
                 if (
                     $this->getCmd(null, 'filtrationTemperature')->execCmd() == 1
                     || $this->getCmd(null, 'filtrationSolaire')->execCmd() == 1
@@ -1671,8 +1671,8 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . 'executeSurpresseurOn begin');
 
         if (
-            $this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 0
-            && $this->getCmd(null, 'filtrationLavageEtat')->execCmd() == 0
+            ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 0 || $this->getCmd(null, 'filtrationSurpresseur')->execCmd() == '')
+            && ($this->getCmd(null, 'filtrationLavageEtat')->execCmd() == 0 || $this->getCmd(null, 'filtrationLavageEtat')->execCmd() == '')
         ) {
             $timeFin = time() + ($this->getConfiguration('surpresseurDuree', '10') * 60);
             $this->getCmd(null, 'filtrationTempsRestant')->event($timeFin);
@@ -1693,7 +1693,7 @@ class pool extends eqLogic
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeFiltreSableLavageOn begin');
 
-        if ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 0) {
+        if ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 0 ||$this->getCmd(null, 'filtrationSurpresseur')->execCmd() == '' ) {
 
             // log::add('pool', 'debug', $this->getHumanName() . 'filtrationLavageEtat=(' . $this->getCmd(null, 'filtrationLavageEtat')->execCmd() . ')');
 
