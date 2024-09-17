@@ -1,3 +1,8 @@
+17/09/2024
+===
+
+- Adaptation pour Jeedom V4 et PHP 8.
+
 08/03/2018
 ===
 
