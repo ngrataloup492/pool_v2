@@ -3147,7 +3147,7 @@ class pool extends eqLogic
                 $lever_soleil->setEqLogic_id($this->getId());
                 $lever_soleil->setName(__('Lever du soleil', __FILE__));
                 $lever_soleil->setType('info');
-                $lever_soleil->setSubType('numeric');
+                $lever_soleil->setSubType('string');
                 $lever_soleil->setLogicalId('lever_soleil');
                 $lever_soleil->setOrder($order++);
                 $lever_soleil->setUnite('');
