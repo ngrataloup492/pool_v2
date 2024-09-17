@@ -1693,7 +1693,7 @@ class pool extends eqLogic
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeFiltreSableLavageOn begin');
 
-        if ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 0 ||$this->getCmd(null, 'filtrationSurpresseur')->execCmd() == '' ) {
+        if ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 0 || $this->getCmd(null, 'filtrationSurpresseur')->execCmd() == '' ) {
 
             // log::add('pool', 'debug', $this->getHumanName() . 'filtrationLavageEtat=(' . $this->getCmd(null, 'filtrationLavageEtat')->execCmd() . ')');
 
