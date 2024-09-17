@@ -1643,8 +1643,14 @@ class pool extends eqLogic
                 $lever_soleil = $this->evaluateLeverSoleil();
             }
 
+            // si l'heure a été retournée sur 3 digits, on rajoute un 0 au début (ex: 600 devient 0600)
             if (strlen($lever_soleil) == 3) {
                 $lever_soleil = '0' . $lever_soleil;
+            }
+
+            // si l'heure a été retournée sur 4 digits, on rajoute un : au millieu (ex: 0600 devient 06:00)
+            if (strlen($lever_soleil) == 4) {
+                $lever_soleil = substr($lever_soleil, 0, 2) . ':' . substr($lever_soleil, 2, 2);
             }
 
             // log::add('pool', 'debug', $this->getHumanName() . 'lever_soleil=(' . $lever_soleil . ')');
