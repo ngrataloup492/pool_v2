@@ -242,6 +242,7 @@ Dans cet onglet, vous devez définir les équipements permettant de piloter la f
 `Arrêt total` : choisissez l'équipement qui imposera au plugin un arrêt total quel que soit l'évènement. Cela peut par exemple vous permettre d’intervenir sur l’installation en étant sur que la filtration ne démarrera pas.
 
 `Marche forcée` :  choisissez l'équipement qui imposera au plugin le démarrage forcé de la filtration. Notez que l’arrêt total est prioritaire sur la marche forcée.
+Le temps passé en marche forcée est automatiquement déduit du temps de filtration calculé en mode automatique sur les 24&nbsp;dernières heures.
 
 Ces deux équipements reçoivent des types infos.
 Il faut donc y mettre les contacts d'un interrupteur RFXcom ou ZWave ou bien encore l'info d'un virtuel qui vous permettra de piloter la filtration à partir du Dashboard.
