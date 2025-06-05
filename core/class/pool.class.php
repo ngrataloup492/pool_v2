@@ -123,8 +123,12 @@ class pool extends eqLogic
 
                 // log::add('pool', 'debug', $pool->getHumanName());
 
-                if ($pool->getCmd(null, 'filtrationSurpresseur')->execCmd() == 1) {
-                    $timeFin = $pool->getCmd(null, 'filtrationTempsRestant')->execCmd();
+                $cmdSurpresseur = $pool->getCmd(null, 'filtrationSurpresseur');
+                $cmdLavageEtat = $pool->getCmd(null, 'filtrationLavageEtat');
+                $cmdTempsRestant = $pool->getCmd(null, 'filtrationTempsRestant');
+
+                if ($cmdSurpresseur->execCmd() == 1) {
+                    $timeFin = $cmdTempsRestant->execCmd();
                     $timeRestant = $timeFin - time();
 
                     if ($timeRestant > 0) {
@@ -134,8 +138,8 @@ class pool extends eqLogic
                     }
                 }
 
-                if ($pool->getCmd(null, 'filtrationLavageEtat')->execCmd() == 2) {
-                    $timeFin = $pool->getCmd(null, 'filtrationTempsRestant')->execCmd();
+                if ($cmdLavageEtat->execCmd() == 2) {
+                    $timeFin = $cmdTempsRestant->execCmd();
                     $timeRestant = $timeFin - time();
 
                     if ($timeRestant > 0) {
@@ -144,8 +148,8 @@ class pool extends eqLogic
                         $pool->executeFiltreSableLavageOn();
                     }
                 }
-                if ($pool->getCmd(null, 'filtrationLavageEtat')->execCmd() == 4) {
-                    $timeFin = $pool->getCmd(null, 'filtrationTempsRestant')->execCmd();
+                if ($cmdLavageEtat->execCmd() == 4) {
+                    $timeFin = $cmdTempsRestant->execCmd();
                     $timeRestant = $timeFin - time();
 
                     if ($timeRestant > 0) {
@@ -327,6 +331,16 @@ class pool extends eqLogic
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'activatingDevices() begin');
 
+        $cmdArretTotal = $this->getCmd(null, 'arretTotal');
+        $cmdMarcheForcee = $this->getCmd(null, 'marcheForcee');
+        $cmdFiltrationLavage = $this->getCmd(null, 'filtrationLavage');
+        $cmdFiltrationTemperature = $this->getCmd(null, 'filtrationTemperature');
+        $cmdFiltrationSolaire = $this->getCmd(null, 'filtrationSolaire');
+        $cmdFiltrationHivernage = $this->getCmd(null, 'filtrationHivernage');
+        $cmdFiltrationSurpresseur = $this->getCmd(null, 'filtrationSurpresseur');
+        $cmdTraitement = $this->getCmd(null, 'traitement');
+        $cmdSurpresseur = $this->getCmd(null, 'surpresseur');
+
         // log::add('pool', 'debug', $this->getHumanName() . 'FiltrationLavage=' . $this->getCmd(null, 'filtrationLavage')->execCmd());
         // log::add('pool', 'debug', $this->getHumanName() . 'FiltrationLavageEtat=' . $this->getCmd(null, 'filtrationLavageEtat')->execCmd());
         // log::add('pool', 'debug', $this->getHumanName() . 'FiltrationTemperature=' . $this->getCmd(null, 'filtrationTemperature')->execCmd());
@@ -341,7 +355,7 @@ class pool extends eqLogic
 
             // log::add('pool', 'debug', $this->getHumanName() . 'cfgAsservissementExterne == enabled');
 
-            if ($this->getCmd(null, 'arretTotal')->execCmd() == 1) {
+            if ($cmdArretTotal && $cmdArretTotal->execCmd() == 1) {
                 $bFound = false;
                 $arretTotals = $this->getConfiguration('arretTotal');
                 foreach ($arretTotals as $arretTotal) {
@@ -350,11 +364,11 @@ class pool extends eqLogic
                 // Pas de commande on remet la cmd 'arretTotal' à zero
                 if ($bFound == false) {
                     // log::add('pool', 'debug', $this->getHumanName() . '$this->getCmd(null, \'arretTotal\')->event(0)');
-                    $this->getCmd(null, 'arretTotal')->event(0);
+                    $cmdArretTotal->event(0);
                 }
             }
 
-            if ($this->getCmd(null, 'marcheForcee')->execCmd() == 1) {
+            if ($cmdMarcheForcee && $cmdMarcheForcee->execCmd() == 1) {
                 $bFound = false;
                 $marcheForcees = $this->getConfiguration('marcheForcee');
                 foreach ($marcheForcees as $marcheForcee) {
@@ -363,67 +377,70 @@ class pool extends eqLogic
                 // Pas de commande on remet la cmd 'marcheForcee' à zero
                 if ($bFound == false) {
                     // log::add('pool', 'debug', $this->getHumanName() . '$this->getCmd(null, \'marcheForcee\')->event(0);');
-                    $this->getCmd(null, 'marcheForcee')->event(0);
+                    $cmdMarcheForcee->event(0);
                 }
             }
         }
 
-        if ($this->getCmd(null, 'arretTotal')->execCmd() == 0 || $this->getCmd(null, 'arretTotal')->execCmd() == '') {
-
-            if ($this->getCmd(null, 'marcheForcee')->execCmd() == 1) {
-
-                // Marche forcée, filtration desactivée
-                $status = __('Actif', __FILE__);
-                $status = $this->getStatusHivernage($status);
-                $this->getCmd(null, 'asservissementStatus')->event($status);
-            } else {
-
-                // Mode Auto, filtration pendant les plages programmées
-                $status = __('Auto', __FILE__);
-                $status = $this->getStatusHivernage($status);
-                $this->getCmd(null, 'asservissementStatus')->event($status);
-            }
-        } else {
-
+        if ($cmdArretTotal->execCmd() != 0 && $cmdArretTotal->execCmd() != '') {
             // Arret total, prioritaire > (tout est stoppé)
             $status = __('Inactif', __FILE__);
             $status = $this->getStatusHivernage($status);
             $this->getCmd(null, 'asservissementStatus')->event($status);
+            $this->traitementStop();
+            $this->surpresseurStop();
+            $this->filtrationStop();
+            $this->chauffageStop();
+            return;
         }
 
-        if ($this->getCmd(null, 'arretTotal')->execCmd() == 0 || $this->getCmd(null, 'arretTotal')->execCmd() == '') {
-            if ($this->getCmd(null, 'filtrationLavage')->execCmd() == 0 || $this->getCmd(null, 'filtrationLavage')->execCmd() == '') {
+        if ($cmdMarcheForcee->execCmd() == 1) {
+
+            // Marche forcée, filtration desactivée
+            $status = __('Actif', __FILE__);
+            $status = $this->getStatusHivernage($status);
+            $this->getCmd(null, 'asservissementStatus')->event($status);
+        } else {
+
+            // Mode Auto, filtration pendant les plages programmées
+            $status = __('Auto', __FILE__);
+            $status = $this->getStatusHivernage($status);
+            $this->getCmd(null, 'asservissementStatus')->event($status);
+        }
+
+        if ($cmdArretTotal->execCmd() == 0 || $cmdArretTotal->execCmd() == '') {
+            if ($cmdFiltrationLavage->execCmd() == 0 || $cmdFiltrationLavage->execCmd() == '') {
                 if (
-                    $this->getCmd(null, 'filtrationTemperature')->execCmd() == 1
-                    || $this->getCmd(null, 'filtrationSolaire')->execCmd() == 1
-                    || $this->getCmd(null, 'filtrationHivernage')->execCmd() == 1
-                    || $this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 1
-                    || $this->getCmd(null, 'marcheForcee')->execCmd() == 1
+                    $cmdFiltrationTemperature->execCmd() == 1
+                    || $cmdFiltrationSolaire->execCmd() == 1
+                    || $cmdFiltrationHivernage->execCmd() == 1
+                    || $cmdFiltrationSurpresseur->execCmd() == 1
+                    || $cmdMarcheForcee->execCmd() == 1
                 ) {
                     $this->filtrationOn();
 
                     if (
-                        $this->getCmd(null, 'filtrationTemperature')->execCmd() == 1
-                        || $this->getCmd(null, 'marcheForcee')->execCmd() == 1
-                        || ($this->getCmd(null, 'filtrationHivernage')->execCmd() == 1 && $this->getConfiguration('traitement_hivernage', '0') == '1')
+                        $cmdFiltrationTemperature->execCmd() == 1
+                        || $cmdMarcheForcee->execCmd() == 1
+                        || ($cmdFiltrationHivernage->execCmd() == 1 && $this->getConfiguration('traitement_hivernage', '0') == '1')
                     ) {
                         sleep(2);
                         $this->traitementOn();
                     }
 
-                    if ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 1) {
+                    if ($cmdFiltrationSurpresseur->execCmd() == 1) {
                         sleep(2);
                         $this->surpresseurOn();
                     } else {
                         $this->surpresseurStop();
                     }
                 } else {
-                    if ($this->getCmd(null, 'traitement')->execCmd() == '1') {
+                    if ($cmdTraitement->execCmd() == '1') {
                         $this->traitementStop();
                         sleep(2);
                     }
 
-                    if ($this->getCmd(null, 'surpresseur')->execCmd() == '1') {
+                    if ($cmdSurpresseur->execCmd() == '1') {
                         $this->surpresseurStop();
                         sleep(2);
                     }
@@ -432,23 +449,24 @@ class pool extends eqLogic
                 }
             }
 
-            if ($this->getCmd(null, 'filtrationLavage')->execCmd() == 1) {
+            if ($cmdFiltrationLavage->execCmd() == 1) {
                 $this->traitementStop();
                 $this->surpresseurStop();
                 $this->filtrationStop();
             }
 
-            if ($this->getCmd(null, 'filtrationLavage')->execCmd() == 2) {
+            if ($cmdFiltrationLavage->execCmd() == 2) {
                 $this->traitementStop();
                 $this->surpresseurStop();
                 $this->filtrationOn();
             }
-        } else {
-            $this->traitementStop();
-            $this->surpresseurStop();
-            $this->filtrationStop();
-            $this->chauffageStop();
+            return;
         }
+
+        $this->traitementStop();
+        $this->surpresseurStop();
+        $this->filtrationStop();
+        $this->chauffageStop();
 
         // log::add('pool', 'debug', $this->getHumanName() . 'activatingDevices() end');
     }
@@ -1677,20 +1695,24 @@ class pool extends eqLogic
     public function executeSurpresseurOn()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeSurpresseurOn begin');
+        $cmdSurpresseur = $this->getCmd(null, 'filtrationSurpresseur');
+        $cmdLavageEtat = $this->getCmd(null, 'filtrationLavageEtat');
 
         if (
-            ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 0 || $this->getCmd(null, 'filtrationSurpresseur')->execCmd() == '')
-            && ($this->getCmd(null, 'filtrationLavageEtat')->execCmd() == 0 || $this->getCmd(null, 'filtrationLavageEtat')->execCmd() == '')
+            ($cmdSurpresseur->execCmd() != 0 && $cmdSurpresseur->execCmd() != '')
+            || ($cmdLavageEtat->execCmd() != 0 && $cmdLavageEtat->execCmd() != '')
         ) {
-            $timeFin = time() + ($this->getConfiguration('surpresseurDuree', '10') * 60);
-            $this->getCmd(null, 'filtrationTempsRestant')->event($timeFin);
-
-            $timeRestant = $timeFin - time();
-            $this->getCmd(null, 'surpresseurStatus')->event(date('i:s', $timeRestant));
-
-            $this->getCmd(null, 'filtrationSurpresseur')->event(1);
-            $this->activatingDevices();
+            return;
         }
+
+        $timeFin = time() + ($this->getConfiguration('surpresseurDuree', '10') * 60);
+        $this->getCmd(null, 'filtrationTempsRestant')->event($timeFin);
+
+        $timeRestant = $timeFin - time();
+        $this->getCmd(null, 'surpresseurStatus')->event(date('i:s', $timeRestant));
+
+        $this->getCmd(null, 'filtrationSurpresseur')->event(1);
+        $this->activatingDevices();
 
         // log::add('pool', 'debug', $this->getHumanName() . 'executeSurpresseurOn end');
     }
@@ -1700,21 +1722,28 @@ class pool extends eqLogic
     public function executeFiltreSableLavageOn()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executeFiltreSableLavageOn begin');
+        $cmdSurpresseur = $this->getCmd(null, 'filtrationSurpresseur');
+        $cmdLavageEtat = $this->getCmd(null, 'filtrationLavageEtat');
+        $cmdFiltrationLavage = $this->getCmd(null, 'filtrationLavage');
+        $cmdTempsRestant = $this->getCmd(null, 'filtrationTempsRestant');
+        $cmdStatus = $this->getCmd(null, 'filtreSableLavageStatus');
 
-        if ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 0 || $this->getCmd(null, 'filtrationSurpresseur')->execCmd() == '' ) {
+        if ($cmdSurpresseur->execCmd() != 0 && $cmdSurpresseur->execCmd() != '') {
+            return;
+        }
 
-            // log::add('pool', 'debug', $this->getHumanName() . 'filtrationLavageEtat=(' . $this->getCmd(null, 'filtrationLavageEtat')->execCmd() . ')');
+        // log::add('pool', 'debug', $this->getHumanName() . 'filtrationLavageEtat=(' . $cmdLavageEtat->execCmd() . ')');
 
-            switch ($this->getCmd(null, 'filtrationLavageEtat')->execCmd()) {
+        switch ($cmdLavageEtat->execCmd()) {
                 case '':
                 case '0':
                     // log::add('pool', 'debug', $this->getHumanName() . 'case 0');
 
-                    $this->getCmd(null, 'filtrationLavageEtat')->event(1); // Arrêt, mettre la vanne sur la position lavage
+                    $cmdLavageEtat->event(1); // Arrêt, mettre la vanne sur la position lavage
 
-                    $this->getCmd(null, 'filtreSableLavageStatus')->event(__('Arrêt, position lavage', __FILE__));
+                    $cmdStatus->event(__('Arrêt, position lavage', __FILE__));
 
-                    $this->getCmd(null, 'filtrationLavage')->event(1);
+                    $cmdFiltrationLavage->event(1);
                     $this->activatingDevices();
                     break;
 
@@ -1723,18 +1752,18 @@ class pool extends eqLogic
 
                     if ($this->getConfiguration('rincageDuree', '2') == '0') {
                         // Si le temps de rinçage est == 0 on passe directement à la fin
-                        $this->getCmd(null, 'filtrationLavageEtat')->event(4); // Lavage en cours...
+                        $cmdLavageEtat->event(4); // Lavage en cours...
                     } else {
-                        $this->getCmd(null, 'filtrationLavageEtat')->event(2); // Lavage en cours...
+                        $cmdLavageEtat->event(2); // Lavage en cours...
                     }
 
                     $timeFin = time() + ($this->getConfiguration('lavageDuree', '2') * 60);
-                    $this->getCmd(null, 'filtrationTempsRestant')->event($timeFin);
+                    $cmdTempsRestant->event($timeFin);
 
                     $timeRestant = $timeFin - time();
-                    $this->getCmd(null, 'filtreSableLavageStatus')->event(__('Lavage', __FILE__) . ' : ' . date('i:s', $timeRestant));
+                    $cmdStatus->event(__('Lavage', __FILE__) . ' : ' . date('i:s', $timeRestant));
 
-                    $this->getCmd(null, 'filtrationLavage')->event(2);
+                    $cmdFiltrationLavage->event(2);
 
                     $this->activatingDevices();
                     break;
@@ -1742,11 +1771,11 @@ class pool extends eqLogic
                 case '2':
                     // log::add('pool', 'debug', $this->getHumanName() . 'case 2');
 
-                    $this->getCmd(null, 'filtrationLavageEtat')->event(3); // Arrêt, mettre la vanne sur la position rinçage
+                    $cmdLavageEtat->event(3); // Arrêt, mettre la vanne sur la position rinçage
 
-                    $this->getCmd(null, 'filtreSableLavageStatus')->event(__('Arrêt, position rinçage', __FILE__));
+                    $cmdStatus->event(__('Arrêt, position rinçage', __FILE__));
 
-                    $this->getCmd(null, 'filtrationLavage')->event(1);
+                    $cmdFiltrationLavage->event(1);
 
                     $this->activatingDevices();
                     break;
@@ -1754,15 +1783,15 @@ class pool extends eqLogic
                 case '3':
                     // log::add('pool', 'debug', $this->getHumanName() . 'case 3');
 
-                    $this->getCmd(null, 'filtrationLavageEtat')->event(4); // Rinçage en cours...
+                    $cmdLavageEtat->event(4); // Rinçage en cours...
 
                     $timeFin = time() + ($this->getConfiguration('rincageDuree', '2') * 60);
-                    $this->getCmd(null, 'filtrationTempsRestant')->event($timeFin);
+                    $cmdTempsRestant->event($timeFin);
 
                     $timeRestant = $timeFin - time();
-                    $this->getCmd(null, 'filtreSableLavageStatus')->event(__('Rinçage', __FILE__) . ' : ' . date('i:s', $timeRestant));
+                    $cmdStatus->event(__('Rinçage', __FILE__) . ' : ' . date('i:s', $timeRestant));
 
-                    $this->getCmd(null, 'filtrationLavage')->event(2);
+                    $cmdFiltrationLavage->event(2);
 
                     $this->activatingDevices();
                     break;
@@ -1770,11 +1799,11 @@ class pool extends eqLogic
                 case '4':
                     // log::add('pool', 'debug', $this->getHumanName() . 'case 4');
 
-                    $this->getCmd(null, 'filtrationLavageEtat')->event(5); // Arrêt, mettre la vanne sur la position filtration
+                    $cmdLavageEtat->event(5); // Arrêt, mettre la vanne sur la position filtration
 
-                    $this->getCmd(null, 'filtreSableLavageStatus')->event(__('Arrêt, position filtration', __FILE__));
+                    $cmdStatus->event(__('Arrêt, position filtration', __FILE__));
 
-                    $this->getCmd(null, 'filtrationLavage')->event(1);
+                    $cmdFiltrationLavage->event(1);
 
                     $this->activatingDevices();
                     break;
@@ -1782,11 +1811,11 @@ class pool extends eqLogic
                 case '5':
                     // log::add('pool', 'debug', $this->getHumanName() . 'case 5');
 
-                    $this->getCmd(null, 'filtrationLavageEtat')->event(0);
+                    $cmdLavageEtat->event(0);
 
-                    $this->getCmd(null, 'filtreSableLavageStatus')->event(__('Arrêté', __FILE__));
+                    $cmdStatus->event(__('Arrêté', __FILE__));
 
-                    $this->getCmd(null, 'filtrationLavage')->event(0);
+                    $cmdFiltrationLavage->event(0);
 
                     $this->activatingDevices();
                     break;
@@ -1802,15 +1831,20 @@ class pool extends eqLogic
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'executePoolStop begin');
 
-        if ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 1) {
-            $this->getCmd(null, 'filtrationSurpresseur')->event(0);
+        $cmdFiltrationSurpresseur = $this->getCmd(null, 'filtrationSurpresseur');
+        $cmdFiltrationLavageEtat = $this->getCmd(null, 'filtrationLavageEtat');
+        $cmdFiltrationLavage = $this->getCmd(null, 'filtrationLavage');
+        $cmdFiltreSableStatus = $this->getCmd(null, 'filtreSableLavageStatus');
+
+        if ($cmdFiltrationSurpresseur->execCmd() == 1) {
+            $cmdFiltrationSurpresseur->event(0);
             $this->activatingDevices();
         }
 
-        if ($this->getCmd(null, 'filtrationLavageEtat')->execCmd() != 0) {
-            $this->getCmd(null, 'filtrationLavageEtat')->event(0);
-            $this->getCmd(null, 'filtrationLavage')->event(0);
-            $this->getCmd(null, 'filtreSableLavageStatus')->event(__('Arrêté', __FILE__));
+        if ($cmdFiltrationLavageEtat->execCmd() != 0) {
+            $cmdFiltrationLavageEtat->event(0);
+            $cmdFiltrationLavage->event(0);
+            $cmdFiltreSableStatus->event(__('Arrêté', __FILE__));
             $this->activatingDevices();
         }
 
