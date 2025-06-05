@@ -30,6 +30,13 @@ if (!isConnect()) {
 
         <div class="alert alert-success"><b>{{Sauvegarde}} : </b>{{La sauvegarde de la configuration redémarre automatiquement le cron}}</div>
 
+        <div class="form-group">
+            <label class="col-sm-4 control-label" >{{Délai entre actions (s)}}</label>
+            <div class="col-sm-2">
+                <input class="configKey form-control" data-l1key="action_delay_seconds" placeholder="2"/>
+            </div>
+        </div>
+
         <script>
 
             function pool_postSaveConfiguration(){
