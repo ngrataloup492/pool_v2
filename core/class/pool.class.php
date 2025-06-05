@@ -648,237 +648,11 @@ class pool extends eqLogic
         list($filtrationSecondes, $filtrationTime) = $this->processingTime($dureeHeures);
 
         if ($this->getConfiguration('Activate_HCHP', '0') == '1') {
-
-            /////////////
-            // Mode HC/HP
-
-            // calcul de $datePivot en suivant les heures creuses
-            $debutHeureCreuseJour = $this->getConfiguration('DebutHCJournee', '13:00');
-            $finHeureCreuseJour = $this->getConfiguration('FinHCJournee', '18:00');
-            $debutHeureCreuseNuit = $this->getConfiguration('DebutHCNuit', '01:00');
-            if (strtotime($debutHeureCreuseNuit) < strtotime($finHeureCreuseJour)) {
-                $debutHeureCreuseNuit = "+1 day " . $debutHeureCreuseNuit;
-            }
-
-            $debutHeureCreuseJourSecondes = strtotime($debutHeureCreuseJour);
-            $finHeureCreuseJourSecondes = strtotime($finHeureCreuseJour);
-            $debutHeureCreuseNuitSecondes = strtotime($debutHeureCreuseNuit);
-
-            // Calcul de la fin des heures creuse de nuit
-            $finHeureCreuseNuitSecondes = $debutHeureCreuseNuitSecondes + ((8 * 3600) - ($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes));
-
-            $debutHeureCreuseNuit = date("H:i", $debutHeureCreuseNuitSecondes);
-            $finHeureCreuseNuit = date("H:i", $finHeureCreuseNuitSecondes);
-
-            // log::add('pool', 'debug', $this->getHumanName() . '$debutHeureCreuseJour=' . $debutHeureCreuseJour);
-            // log::add('pool', 'debug', $this->getHumanName() . '$finHeureCreuseJour=' . $finHeureCreuseJour);
-            // log::add('pool', 'debug', $this->getHumanName() . '$debutHeureCreuseNuit=' . $debutHeureCreuseNuit);
-            // log::add('pool', 'debug', $this->getHumanName() . '$finHeureCreuseNuit=' . $finHeureCreuseNuit);
-
-            // la plage doit-elle etre celle de demain ?
-            if ($flgTomorrow == true) {
-                if ($debutHeureCreuseJourSecondes < time()) {
-                    // log::add('pool', 'info', $this->getHumanName() . '+1 day');
-                    $debutHeureCreuseJourSecondes = strtotime("+1 day", $debutHeureCreuseJourSecondes);
-                    $finHeureCreuseJourSecondes = strtotime("+1 day", $finHeureCreuseJourSecondes);
-                    $debutHeureCreuseNuitSecondes = strtotime("+1 day", $debutHeureCreuseNuitSecondes);
-                    $finHeureCreuseNuitSecondes = strtotime("+1 day", $finHeureCreuseNuitSecondes);
-                }
-            }
-
-            // log::add('pool', 'debug', $this->getHumanName() . '$debutHeureCreuseJour=' . date("H:i d-m-Y", $debutHeureCreuseJourSecondes));
-            // log::add('pool', 'debug', $this->getHumanName() . '$finHeureCreuseJour=' . date("H:i d-m-Y", $finHeureCreuseJourSecondes));
-            // log::add('pool', 'debug', $this->getHumanName() . '$debutHeureCreuseNuit=' . date("H:i d-m-Y", $debutHeureCreuseNuitSecondes));
-            // log::add('pool', 'debug', $this->getHumanName() . '$finHeureCreuseNuit=' . date("H:i d-m-Y", $finHeureCreuseNuitSecondes));
-
-            switch ($this->getConfiguration('prioriteHC', '1')) {
-                case '1':
-
-                    // Journée
-                    // log::add('pool', 'debug', $this->getHumanName() . 'HP/HC : Journée');
-
-                    if ($filtrationSecondes <= ($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes)) {
-
-                        // Temps de filtration <= a la plage Jour
-                        // log::add('pool', 'debug', $this->getHumanName() . 'Temps de filtration ' . $filtrationSecondes . ' ' . date("H:i", $filtrationSecondes) . ' <= a la plage Jour');
-
-                        $filtrationDebut = $debutHeureCreuseJourSecondes;
-                        $filtrationPauseDebut = $filtrationDebut + ($filtrationSecondes / 2.0);
-                        $filtrationPauseFin = $filtrationDebut + ($filtrationSecondes / 2.0);
-                        $filtrationFin = $debutHeureCreuseJourSecondes + $filtrationSecondes;
-                    } else if ($filtrationSecondes <= (8 * 3600)) {
-
-                        // Temps de filtration <= 8 heures
-                        // log::add('pool', 'debug', $this->getHumanName() . 'Temps de filtration ' . $filtrationSecondes . ' ' . date("H:i", $filtrationSecondes) . ' <= 8 heures');
-
-                        $filtrationDebut = $debutHeureCreuseJourSecondes;
-                        $filtrationPauseDebut = $finHeureCreuseJourSecondes;
-                        $filtrationPauseFin = $debutHeureCreuseNuitSecondes;
-                        $filtrationFin = $debutHeureCreuseNuitSecondes + ($filtrationSecondes - ($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes));
-                    } else {
-
-                        // Temps de filtration > 8 heures, repartition autour des deux plages
-                        // log::add('pool', 'debug', $this->getHumanName() . 'Temps de filtration ' . $filtrationSecondes . ' ' . date("H:i", $filtrationSecondes) . ' > 8 heures');
-
-                        $pivotHeureCreuseJourSecondes = $debutHeureCreuseJourSecondes + (($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes) / 2.0);
-                        // log::add('pool', 'debug', $this->getHumanName() . '$pivotHeureCreuseJourSecondes=' . date("H:i", $pivotHeureCreuseJourSecondes));
-                        $pivotHeureCreuseNuitSecondes = $debutHeureCreuseNuitSecondes + (($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes) / 2.0);
-                        // log::add('pool', 'debug', $this->getHumanName() . '$pivotHeureCreuseNuitSecondes=' . date("H:i", $pivotHeureCreuseNuitSecondes));
-
-                        $dureePlageJour = $finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes;
-                        // log::add('pool', 'debug', $this->getHumanName() . '$dureePlageJour=' . $dureePlageJour . ' ' . date("H:i", $dureePlageJour));
-                        $dureePlageNuit = $finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes;
-                        // log::add('pool', 'debug', $this->getHumanName() . '$dureePlageNuit=' . $dureePlageNuit . ' ' . date("H:i", $dureePlageNuit));
-
-                        $ratioJour = (8 * 60 * 60) / $dureePlageJour;
-                        // log::add('pool', 'debug', $this->getHumanName() . '$ratioJour=' . $ratioJour);
-                        $rationNuit = (8 * 60 * 60) / $dureePlageNuit;
-                        // log::add('pool', 'debug', $this->getHumanName() . '$rationNuit=' . $rationNuit);
-
-                        // Jour
-                        $filtrationDebut = $pivotHeureCreuseJourSecondes - (($filtrationSecondes / 2.0) / $ratioJour);
-                        $filtrationPauseDebut = $pivotHeureCreuseJourSecondes + (($filtrationSecondes / 2.0) / $ratioJour);
-                        // Nuit
-                        $filtrationPauseFin = $pivotHeureCreuseNuitSecondes - (($filtrationSecondes / 2.0) / $rationNuit);
-                        $filtrationFin = $pivotHeureCreuseNuitSecondes + (($filtrationSecondes / 2.0) / $rationNuit);
-                    }
-                    break;
-                case '2':
-
-                    // Nuit
-                    // log::add('pool', 'debug', $this->getHumanName() . 'HP/HC : Nuit');
-
-                    if ($filtrationSecondes <= ($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes)) {
-
-                        // Temps de filtration <= a la plage Nuit
-                        // log::add('pool', 'debug', $this->getHumanName() . 'Temps de filtration ' . $filtrationSecondes . ' ' . date("H:i", $filtrationSecondes) . ' <= a la plage Nuit');
-
-                        $filtrationDebut = $debutHeureCreuseNuitSecondes;
-                        $filtrationPauseDebut = $filtrationDebut + ($filtrationSecondes / 2.0);
-                        $filtrationPauseFin = $filtrationDebut + ($filtrationSecondes / 2.0);
-                        $filtrationFin = $debutHeureCreuseNuitSecondes + $filtrationSecondes;
-                    } else if ($filtrationSecondes <= (8 * 3600)) {
-
-                        // Temps de filtration <= 8 heures
-                        // log::add('pool', 'debug', $this->getHumanName() . 'Temps de filtration ' . $filtrationSecondes . ' ' . date("H:i", $filtrationSecondes) . ' <= 8 heures');
-
-                        $filtrationDebut = $debutHeureCreuseJourSecondes;
-                        $filtrationPauseDebut = $debutHeureCreuseJourSecondes + ($filtrationSecondes - ($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes));
-                        $filtrationPauseFin = $debutHeureCreuseNuitSecondes;
-                        $filtrationFin = $finHeureCreuseNuitSecondes;
-                    } else {
-
-                        // Temps de filtration > 8 heures, repartition autour des deux plages
-                        // log::add('pool', 'debug', $this->getHumanName() . 'Temps de filtration ' . $filtrationSecondes . ' ' . date("H:i", $filtrationSecondes) . ' > 8 heures');
-
-                        $pivotHeureCreuseJourSecondes = $debutHeureCreuseJourSecondes + (($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes) / 2.0);
-                        // log::add('pool', 'debug', $this->getHumanName() . '$pivotHeureCreuseJourSecondes=' . date("H:i", $pivotHeureCreuseJourSecondes));
-                        $pivotHeureCreuseNuitSecondes = $debutHeureCreuseNuitSecondes + (($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes) / 2.0);
-                        // log::add('pool', 'debug', $this->getHumanName() . '$pivotHeureCreuseNuitSecondes=' . date("H:i", $pivotHeureCreuseNuitSecondes));
-
-                        $dureePlageJour = $finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes;
-                        // log::add('pool', 'debug', $this->getHumanName() . '$dureePlageJour=' . $dureePlageJour . ' ' . date("H:i", $dureePlageJour));
-                        $dureePlageNuit = $finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes;
-                        // log::add('pool', 'debug', $this->getHumanName() . '$dureePlageNuit=' . $dureePlageNuit . ' ' . date("H:i", $dureePlageNuit));
-
-                        $ratioJour = (8 * 60 * 60) / $dureePlageJour;
-                        // log::add('pool', 'debug', $this->getHumanName() . '$ratioJour=' . $ratioJour);
-                        $rationNuit = (8 * 60 * 60) / $dureePlageNuit;
-                        // log::add('pool', 'debug', $this->getHumanName() . '$rationNuit=' . $rationNuit);
-
-                        // Jour
-                        $filtrationDebut = $pivotHeureCreuseJourSecondes - (($filtrationSecondes / 2.0) / $ratioJour);
-                        $filtrationPauseDebut = $pivotHeureCreuseJourSecondes + (($filtrationSecondes / 2.0) / $ratioJour);
-                        // Nuit
-                        $filtrationPauseFin = $pivotHeureCreuseNuitSecondes - (($filtrationSecondes / 2.0) / $rationNuit);
-                        $filtrationFin = $pivotHeureCreuseNuitSecondes + (($filtrationSecondes / 2.0) / $rationNuit);
-                    }
-                    break;
-                case '3':
-
-                    // Proportionnel
-                    // log::add('pool', 'debug', $this->getHumanName() . 'HP/HC : Proportionnel');
-
-                    // log::add('pool', 'debug', $this->getHumanName() . 'Temps de filtration ' . $filtrationSecondes . ' ' . date("H:i", $filtrationSecondes));
-
-                    $pivotHeureCreuseJourSecondes = $debutHeureCreuseJourSecondes + (($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes) / 2.0);
-                    // log::add('pool', 'debug', $this->getHumanName() . '$pivotHeureCreuseJourSecondes=' . date("H:i", $pivotHeureCreuseJourSecondes));
-                    $pivotHeureCreuseNuitSecondes = $debutHeureCreuseNuitSecondes + (($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes) / 2.0);
-                    // log::add('pool', 'debug', $this->getHumanName() . '$pivotHeureCreuseNuitSecondes=' . date("H:i", $pivotHeureCreuseNuitSecondes));
-
-                    $dureePlageJour = $finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes;
-                    // log::add('pool', 'debug', $this->getHumanName() . '$dureePlageJour=' . $dureePlageJour . ' ' . date("H:i", $dureePlageJour));
-                    $dureePlageNuit = $finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes;
-                    // log::add('pool', 'debug', $this->getHumanName() . '$dureePlageNuit=' . $dureePlageNuit . ' ' . date("H:i", $dureePlageNuit));
-
-                    $ratioJour = (8 * 60 * 60) / $dureePlageJour;
-                    // log::add('pool', 'debug', $this->getHumanName() . '$ratioJour=' . $ratioJour);
-                    $rationNuit = (8 * 60 * 60) / $dureePlageNuit;
-                    // log::add('pool', 'debug', $this->getHumanName() . '$rationNuit=' . $rationNuit);
-
-                    // Jour
-                    $filtrationDebut = $pivotHeureCreuseJourSecondes - (($filtrationSecondes / 2.0) / $ratioJour);
-                    $filtrationPauseDebut = $pivotHeureCreuseJourSecondes + (($filtrationSecondes / 2.0) / $ratioJour);
-                    // Nuit
-                    $filtrationPauseFin = $pivotHeureCreuseNuitSecondes - (($filtrationSecondes / 2.0) / $rationNuit);
-                    $filtrationFin = $pivotHeureCreuseNuitSecondes + (($filtrationSecondes / 2.0) / $rationNuit);
-
-                    break;
-            }
+            list($filtrationDebut, $filtrationFin, $filtrationPauseDebut, $filtrationPauseFin) =
+                $this->scheduleHCHP($filtrationSecondes, $flgTomorrow);
         } else {
-
-            //////////////
-            // Mode normal
-
-            // datePivot (suivant config)
-            $datePivot = $this->getConfiguration('datePivot', '13:00');
-            // log::add('pool', 'debug', $this->getHumanName() . '$datePivot Config=' . $datePivot);
-
-            $filtrationPivotSecondes = strtotime($datePivot);
-
-            // la plage doit-elle etre celle de demain ?
-            if ($flgTomorrow == true) {
-                if ($filtrationPivotSecondes < time()) {
-                    log::add('pool', 'info', $this->getHumanName() . '+1 day');
-                    $filtrationPivotSecondes = strtotime("+1 day", $filtrationPivotSecondes);
-                }
-            }
-
-            $pausePivotSecondes = $this->getConfiguration('pausePivot', '0') * 60; // Temps de pause en secondes
-            log::add('pool', 'debug', $this->getHumanName() . 'duree pausePivot Config=' . date("H:i", $pausePivotSecondes));
-
-            // si la somme de filtrationSecondes et pausePivotSecondes est superieure a 24h on reduit pausePivotSecondes
-            if (($filtrationSecondes + $pausePivotSecondes) > (3600 * 24)) {
-                log::add('pool', 'info', $this->getHumanName() . 'duree pausePivot Ajustée=' . date("H:i", $pausePivotSecondes) . ' >> ' . date("H:i", (3600 * 24) - $filtrationSecondes));
-                $pausePivotSecondes = (3600 * 24) - $filtrationSecondes;
-            }
-
-            $filtrationSecondes += $pausePivotSecondes; // Ajoute le temps de pause au temps de filtration
-
-            // Repartition de la filtration suivant Config
-            switch ($this->getConfiguration('distributionDatePivot', '1')) {
-                case '1':
-                    // 1/2 <> 1/2
-                    log::add('pool', 'debug', $this->getHumanName() . 'distributionDatePivot= 1/2 <> 1/2');
-
-                    $filtrationDebut = $filtrationPivotSecondes - ($filtrationSecondes / 2.0);
-                    $filtrationFin = $filtrationPivotSecondes + ($filtrationSecondes / 2.0);
-
-                    $filtrationPauseDebut = $filtrationPivotSecondes - ($pausePivotSecondes / 2.0);
-                    $filtrationPauseFin = $filtrationPivotSecondes + ($pausePivotSecondes / 2.0);
-                    break;
-
-                case '2':
-                    // 1/3 <> 2/3
-                    log::add('pool', 'debug', $this->getHumanName() . 'distributionDatePivot= 1/3 <> 2/3');
-
-                    $filtrationDebut = $filtrationPivotSecondes - ($filtrationSecondes / 3.0);
-                    $filtrationFin = $filtrationPivotSecondes + (($filtrationSecondes / 3.0) * 2.0);
-
-                    $filtrationPauseDebut = $filtrationPivotSecondes - ($pausePivotSecondes / 3.0);
-                    $filtrationPauseFin = $filtrationPivotSecondes + (($pausePivotSecondes / 3.0) * 2.0);
-                    break;
-            }
+            list($filtrationDebut, $filtrationFin, $filtrationPauseDebut, $filtrationPauseFin) =
+                $this->scheduleNormal($filtrationSecondes, $flgTomorrow);
         }
 
         // Memorise les resultats du calcul
@@ -1272,36 +1046,8 @@ class pool extends eqLogic
         list($filtrationSecondes, $filtrationTime) = $this->processingTime($dureeHeures);
 
 
-        // Choix de l'heure de filtration (suivant config)
-        switch ($this->getConfiguration('choixHeureFiltrationHivernage', '1')) {
-            case '1':
-                // log::add('pool', 'debug', $this->getHumanName() . '$lever_soleil=' . $lever_soleil);
-                $filtrationPivot = strtotime($lever_soleil);
-                break;
-
-            case '2':
-                // datePivotHivernage (suivant config)
-                $datePivotHivernage = $this->getConfiguration('datePivotHivernage', '06:00');
-                // log::add('pool', 'debug', $this->getHumanName() . '$datePivotHivernage=' . $datePivotHivernage);
-                $filtrationPivot = strtotime($datePivotHivernage);
-                break;
-        }
-
-        // log::add('pool', 'debug', $this->getHumanName() . '$flgTomorrow=' . $flgTomorrow);
-
-        // la plage doit-elle etre celle de demain ?
-        if ($flgTomorrow == true) {
-            if ($filtrationPivot < time()) {
-                log::add('pool', 'info', $this->getHumanName() . '+1 day');
-                $filtrationPivot = strtotime("+1 day", $filtrationPivot);
-            }
-        }
-
-        // Repartition de la filtration
-        // 2/3 <> 1/3
-        // log::add('pool', 'debug', $this->getHumanName() . 'distributionDatePivot= 2/3 <> 1/3');
-        $filtrationDebut = $filtrationPivot - (($filtrationSecondes / 3.0) * 2.0);
-        $filtrationFin = $filtrationPivot + ($filtrationSecondes / 3.0);
+        list($filtrationDebut, $filtrationFin) =
+            $this->scheduleWinter($filtrationSecondes, $lever_soleil, $flgTomorrow);
 
         // Memorise les resultats du calcul
         $this->getCmd(null, 'filtrationTime')->event($filtrationTime);
@@ -1901,6 +1647,163 @@ class pool extends eqLogic
                 $display->event($value);
             }
         }
+    }
+
+    private function scheduleHCHP($filtrationSecondes, $flgTomorrow)
+    {
+        // calcul de $datePivot en suivant les heures creuses
+        $debutHeureCreuseJour = $this->getConfiguration('DebutHCJournee', '13:00');
+        $finHeureCreuseJour = $this->getConfiguration('FinHCJournee', '18:00');
+        $debutHeureCreuseNuit = $this->getConfiguration('DebutHCNuit', '01:00');
+        if (strtotime($debutHeureCreuseNuit) < strtotime($finHeureCreuseJour)) {
+            $debutHeureCreuseNuit = "+1 day " . $debutHeureCreuseNuit;
+        }
+
+        $debutHeureCreuseJourSecondes = strtotime($debutHeureCreuseJour);
+        $finHeureCreuseJourSecondes = strtotime($finHeureCreuseJour);
+        $debutHeureCreuseNuitSecondes = strtotime($debutHeureCreuseNuit);
+
+        // Calcul de la fin des heures creuse de nuit
+        $finHeureCreuseNuitSecondes = $debutHeureCreuseNuitSecondes + ((8 * 3600) - ($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes));
+
+        // la plage doit-elle etre celle de demain ?
+        if ($flgTomorrow == true) {
+            if ($debutHeureCreuseJourSecondes < time()) {
+                $debutHeureCreuseJourSecondes = strtotime("+1 day", $debutHeureCreuseJourSecondes);
+                $finHeureCreuseJourSecondes = strtotime("+1 day", $finHeureCreuseJourSecondes);
+                $debutHeureCreuseNuitSecondes = strtotime("+1 day", $debutHeureCreuseNuitSecondes);
+                $finHeureCreuseNuitSecondes = strtotime("+1 day", $finHeureCreuseNuitSecondes);
+            }
+        }
+
+        switch ($this->getConfiguration('prioriteHC', '1')) {
+            case '1':
+                if ($filtrationSecondes <= ($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes)) {
+                    $filtrationDebut = $debutHeureCreuseJourSecondes;
+                    $filtrationPauseDebut = $filtrationDebut + ($filtrationSecondes / 2.0);
+                    $filtrationPauseFin = $filtrationDebut + ($filtrationSecondes / 2.0);
+                    $filtrationFin = $debutHeureCreuseJourSecondes + $filtrationSecondes;
+                } elseif ($filtrationSecondes <= (8 * 3600)) {
+                    $filtrationDebut = $debutHeureCreuseJourSecondes;
+                    $filtrationPauseDebut = $finHeureCreuseJourSecondes;
+                    $filtrationPauseFin = $debutHeureCreuseNuitSecondes;
+                    $filtrationFin = $debutHeureCreuseNuitSecondes + ($filtrationSecondes - ($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes));
+                } else {
+                    $pivotHeureCreuseJourSecondes = $debutHeureCreuseJourSecondes + (($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes) / 2.0);
+                    $pivotHeureCreuseNuitSecondes = $debutHeureCreuseNuitSecondes + (($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes) / 2.0);
+                    $dureePlageJour = $finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes;
+                    $dureePlageNuit = $finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes;
+                    $ratioJour = (8 * 60 * 60) / $dureePlageJour;
+                    $rationNuit = (8 * 60 * 60) / $dureePlageNuit;
+                    $filtrationDebut = $pivotHeureCreuseJourSecondes - (($filtrationSecondes / 2.0) / $ratioJour);
+                    $filtrationPauseDebut = $pivotHeureCreuseJourSecondes + (($filtrationSecondes / 2.0) / $ratioJour);
+                    $filtrationPauseFin = $pivotHeureCreuseNuitSecondes - (($filtrationSecondes / 2.0) / $rationNuit);
+                    $filtrationFin = $pivotHeureCreuseNuitSecondes + (($filtrationSecondes / 2.0) / $rationNuit);
+                }
+                break;
+            case '2':
+                if ($filtrationSecondes <= ($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes)) {
+                    $filtrationDebut = $debutHeureCreuseNuitSecondes;
+                    $filtrationPauseDebut = $filtrationDebut + ($filtrationSecondes / 2.0);
+                    $filtrationPauseFin = $filtrationDebut + ($filtrationSecondes / 2.0);
+                    $filtrationFin = $debutHeureCreuseNuitSecondes + $filtrationSecondes;
+                } elseif ($filtrationSecondes <= (8 * 3600)) {
+                    $filtrationDebut = $debutHeureCreuseJourSecondes;
+                    $filtrationPauseDebut = $debutHeureCreuseJourSecondes + ($filtrationSecondes - ($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes));
+                    $filtrationPauseFin = $debutHeureCreuseNuitSecondes;
+                    $filtrationFin = $finHeureCreuseNuitSecondes;
+                } else {
+                    $pivotHeureCreuseJourSecondes = $debutHeureCreuseJourSecondes + (($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes) / 2.0);
+                    $pivotHeureCreuseNuitSecondes = $debutHeureCreuseNuitSecondes + (($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes) / 2.0);
+                    $dureePlageJour = $finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes;
+                    $dureePlageNuit = $finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes;
+                    $ratioJour = (8 * 60 * 60) / $dureePlageJour;
+                    $rationNuit = (8 * 60 * 60) / $dureePlageNuit;
+                    $filtrationDebut = $pivotHeureCreuseJourSecondes - (($filtrationSecondes / 2.0) / $ratioJour);
+                    $filtrationPauseDebut = $pivotHeureCreuseJourSecondes + (($filtrationSecondes / 2.0) / $ratioJour);
+                    $filtrationPauseFin = $pivotHeureCreuseNuitSecondes - (($filtrationSecondes / 2.0) / $rationNuit);
+                    $filtrationFin = $pivotHeureCreuseNuitSecondes + (($filtrationSecondes / 2.0) / $rationNuit);
+                }
+                break;
+            case '3':
+                $pivotHeureCreuseJourSecondes = $debutHeureCreuseJourSecondes + (($finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes) / 2.0);
+                $pivotHeureCreuseNuitSecondes = $debutHeureCreuseNuitSecondes + (($finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes) / 2.0);
+                $dureePlageJour = $finHeureCreuseJourSecondes - $debutHeureCreuseJourSecondes;
+                $dureePlageNuit = $finHeureCreuseNuitSecondes - $debutHeureCreuseNuitSecondes;
+                $ratioJour = (8 * 60 * 60) / $dureePlageJour;
+                $rationNuit = (8 * 60 * 60) / $dureePlageNuit;
+                $filtrationDebut = $pivotHeureCreuseJourSecondes - (($filtrationSecondes / 2.0) / $ratioJour);
+                $filtrationPauseDebut = $pivotHeureCreuseJourSecondes + (($filtrationSecondes / 2.0) / $ratioJour);
+                $filtrationPauseFin = $pivotHeureCreuseNuitSecondes - (($filtrationSecondes / 2.0) / $rationNuit);
+                $filtrationFin = $pivotHeureCreuseNuitSecondes + (($filtrationSecondes / 2.0) / $rationNuit);
+                break;
+        }
+
+        return [$filtrationDebut, $filtrationFin, $filtrationPauseDebut, $filtrationPauseFin];
+    }
+
+    private function scheduleNormal($filtrationSecondes, $flgTomorrow)
+    {
+        $datePivot = $this->getConfiguration('datePivot', '13:00');
+        $filtrationPivotSecondes = strtotime($datePivot);
+        if ($flgTomorrow == true) {
+            if ($filtrationPivotSecondes < time()) {
+                log::add('pool', 'info', $this->getHumanName() . '+1 day');
+                $filtrationPivotSecondes = strtotime("+1 day", $filtrationPivotSecondes);
+            }
+        }
+
+        $pausePivotSecondes = $this->getConfiguration('pausePivot', '0') * 60; // Temps de pause en secondes
+        log::add('pool', 'debug', $this->getHumanName() . 'duree pausePivot Config=' . date("H:i", $pausePivotSecondes));
+
+        if (($filtrationSecondes + $pausePivotSecondes) > (3600 * 24)) {
+            log::add('pool', 'info', $this->getHumanName() . 'duree pausePivot Ajustée=' . date("H:i", $pausePivotSecondes) . ' >> ' . date("H:i", (3600 * 24) - $filtrationSecondes));
+            $pausePivotSecondes = (3600 * 24) - $filtrationSecondes;
+        }
+
+        $filtrationSecondes += $pausePivotSecondes;
+
+        switch ($this->getConfiguration('distributionDatePivot', '1')) {
+            case '1':
+                $filtrationDebut = $filtrationPivotSecondes - ($filtrationSecondes / 2.0);
+                $filtrationFin = $filtrationPivotSecondes + ($filtrationSecondes / 2.0);
+                $filtrationPauseDebut = $filtrationPivotSecondes - ($pausePivotSecondes / 2.0);
+                $filtrationPauseFin = $filtrationPivotSecondes + ($pausePivotSecondes / 2.0);
+                break;
+            case '2':
+                $filtrationDebut = $filtrationPivotSecondes - ($filtrationSecondes / 3.0);
+                $filtrationFin = $filtrationPivotSecondes + (($filtrationSecondes / 3.0) * 2.0);
+                $filtrationPauseDebut = $filtrationPivotSecondes - ($pausePivotSecondes / 3.0);
+                $filtrationPauseFin = $filtrationPivotSecondes + (($pausePivotSecondes / 3.0) * 2.0);
+                break;
+        }
+
+        return [$filtrationDebut, $filtrationFin, $filtrationPauseDebut, $filtrationPauseFin];
+    }
+
+    private function scheduleWinter($filtrationSecondes, $lever_soleil, $flgTomorrow)
+    {
+        switch ($this->getConfiguration('choixHeureFiltrationHivernage', '1')) {
+            case '1':
+                $filtrationPivot = strtotime($lever_soleil);
+                break;
+            case '2':
+                $datePivotHivernage = $this->getConfiguration('datePivotHivernage', '06:00');
+                $filtrationPivot = strtotime($datePivotHivernage);
+                break;
+        }
+
+        if ($flgTomorrow == true) {
+            if ($filtrationPivot < time()) {
+                log::add('pool', 'info', $this->getHumanName() . '+1 day');
+                $filtrationPivot = strtotime("+1 day", $filtrationPivot);
+            }
+        }
+
+        $filtrationDebut = $filtrationPivot - (($filtrationSecondes / 3.0) * 2.0);
+        $filtrationFin = $filtrationPivot + ($filtrationSecondes / 3.0);
+
+        return [$filtrationDebut, $filtrationFin];
     }
 
     public function filtrationOn($_repeat = false)
