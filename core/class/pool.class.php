@@ -1881,6 +1881,20 @@ class pool extends eqLogic
         }
     }
 
+    private function refreshTemperatureReading()
+    {
+        $temperature = $this->getCmd(null, 'temperature');
+        if (is_object($temperature)) {
+            $value = $temperature->execute();
+            $temperature->event($value);
+
+            $display = $this->getCmd(null, 'temperature_display');
+            if (is_object($display)) {
+                $display->event($value);
+            }
+        }
+    }
+
     public function filtrationOn($_repeat = false)
     {
         $cmdFiltration = $this->getCmd(null, 'filtration');
@@ -1889,6 +1903,7 @@ class pool extends eqLogic
             // log::add('pool', 'debug', $this->getHumanName() . ' : Action filtrationOn filtration=[' . $cmdFiltration->execCmd() . ']');
             return;
         }
+        $this->refreshTemperatureReading();
         // log::add('pool', 'debug', $this->getHumanName() . ' : Action filtrationOn filtration=[' . $cmdFiltration->execCmd() . ']');
 
         foreach ($this->getConfiguration('filtrationOn') as $action) {
@@ -1977,6 +1992,7 @@ class pool extends eqLogic
             // log::add('pool', 'debug', $this->getHumanName() . ' : Action surpresseurOn surpresseur=[' . $cmdSurpresseur->execCmd() . ']');
             return;
         }
+        $this->refreshTemperatureReading();
         // log::add('pool', 'debug', $this->getHumanName() . ' : Action surpresseurOn surpresseur=[' . $cmdSurpresseur->execCmd() . ']');
 
         foreach ($this->getConfiguration('surpresseurOn') as $action) {
@@ -2065,6 +2081,7 @@ class pool extends eqLogic
             // log::add('pool', 'debug', $this->getHumanName() . ' : Action traitementOn traitement=[' . $cmdTraitement->execCmd() . ']');
             return;
         }
+        $this->refreshTemperatureReading();
         // log::add('pool', 'debug', $this->getHumanName() . ' : Action traitementOn traitement=[' . $cmdTraitement->execCmd() . ']');
 
         foreach ($this->getConfiguration('traitementOn') as $action) {
@@ -2153,6 +2170,7 @@ class pool extends eqLogic
             // log::add('pool', 'debug', $this->getHumanName() . ' : Action chauffageOn chauffage=[' . $cmdChauffage->execCmd() . ']');
             return;
         }
+        $this->refreshTemperatureReading();
         // log::add('pool', 'debug', $this->getHumanName() . ' : Action chauffageOn chauffage=[' . $cmdChauffage->execCmd() . ']');
 
         foreach ($this->getConfiguration('chauffageOn') as $action) {
