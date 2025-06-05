@@ -22,6 +22,11 @@ function pool_install()
 {
     log::add('pool', 'debug', 'pool_install()');
 
+    // Default configuration for delay between actions
+    if (config::byKey('action_delay_seconds', 'pool', null) === null) {
+        config::save('action_delay_seconds', 2, 'pool');
+    }
+
     $cron = cron::byClassAndFunction('pool', 'pull');
     if (!is_object($cron)) {
         $cron = new cron();
@@ -39,6 +44,11 @@ function pool_update()
 {
     log::add('pool', 'debug', 'pool_update()');
     log::add('pool', 'error', '!!! Voir le changelog et doc pour les changements !!!');
+
+    // Ensure configuration value exists after update
+    if (config::byKey('action_delay_seconds', 'pool', null) === null) {
+        config::save('action_delay_seconds', 2, 'pool');
+    }
 
     foreach (pool::byType('pool') as $pool) {
         log::add('pool', 'debug', 'update :' . $pool->getHumanName());

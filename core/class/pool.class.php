@@ -21,8 +21,17 @@
 /* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
+// Default delay between actions in seconds. Can be overridden via plugin configuration
+if (!defined('POOL_ACTION_DELAY_SECONDS')) {
+    $delay = config::byKey('action_delay_seconds', 'pool', 2);
+    define('POOL_ACTION_DELAY_SECONDS', (int) $delay);
+}
+
 class pool extends eqLogic
 {
+
+    /** Delay between successive actions */
+    const ACTION_DELAY_SECONDS = POOL_ACTION_DELAY_SECONDS;
 
     /* ************************Methode static*************************** */
 
@@ -413,12 +422,12 @@ class pool extends eqLogic
                         || $this->getCmd(null, 'marcheForcee')->execCmd() == 1
                         || ($this->getCmd(null, 'filtrationHivernage')->execCmd() == 1 && $this->getConfiguration('traitement_hivernage', '0') == '1')
                     ) {
-                        sleep(2);
+                        sleep(self::ACTION_DELAY_SECONDS);
                         $this->traitementOn();
                     }
 
                     if ($this->getCmd(null, 'filtrationSurpresseur')->execCmd() == 1) {
-                        sleep(2);
+                        sleep(self::ACTION_DELAY_SECONDS);
                         $this->surpresseurOn();
                     } else {
                         $this->surpresseurStop();
@@ -426,12 +435,12 @@ class pool extends eqLogic
                 } else {
                     if ($this->getCmd(null, 'traitement')->execCmd() == '1') {
                         $this->traitementStop();
-                        sleep(2);
+                        sleep(self::ACTION_DELAY_SECONDS);
                     }
 
                     if ($this->getCmd(null, 'surpresseur')->execCmd() == '1') {
                         $this->surpresseurStop();
-                        sleep(2);
+                        sleep(self::ACTION_DELAY_SECONDS);
                     }
 
                     $this->filtrationStop();
