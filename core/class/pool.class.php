@@ -641,6 +641,10 @@ class pool extends eqLogic
                 break;
         }
 
+        // Soustrait le temps de marche forcée des 24 dernières heures
+        $dureeHeures -= $this->manualRuntimeLast24h();
+        $dureeHeures = max($dureeHeures, 0);
+
         list($filtrationSecondes, $filtrationTime) = $this->processingTime($dureeHeures);
 
         if ($this->getConfiguration('Activate_HCHP', '0') == '1') {
@@ -1260,6 +1264,10 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . '$temperatureCalcul=' . $temperatureCalcul);
 
         $dureeHeures = $this->calculateTimeFiltrationWithTemperatureHivernage($temperatureCalcul);
+
+        // Soustrait le temps de marche forcée des 24 dernières heures
+        $dureeHeures -= $this->manualRuntimeLast24h();
+        $dureeHeures = max($dureeHeures, 0);
 
         list($filtrationSecondes, $filtrationTime) = $this->processingTime($dureeHeures);
 
@@ -3622,6 +3630,34 @@ class pool extends eqLogic
 
         // log::add('pool', 'debug', '$return:' . $return);
         return $return;
+    }
+
+    public function manualRuntimeLast24h()
+    {
+        $manualCmd = $this->getCmd(null, 'marcheForcee');
+        if (!is_object($manualCmd)) {
+            return 0;
+        }
+        $start = date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $runtime = 0;
+        $prevValue = 0;
+        $prevDatetime = 0;
+        foreach ($manualCmd->getHistory($start, null) as $history) {
+            if ($history->getValue() == 1 && $prevValue == 0) {
+                $prevDatetime = strtotime($history->getDatetime());
+                $prevValue = 1;
+            }
+            if ($history->getValue() == 0 && $prevValue == 1) {
+                if ($prevDatetime > 0 && strtotime($history->getDatetime()) > $prevDatetime) {
+                    $runtime += strtotime($history->getDatetime()) - $prevDatetime;
+                }
+                $prevValue = 0;
+            }
+        }
+        if ($prevValue == 1) {
+            $runtime += time() - $prevDatetime;
+        }
+        return $runtime / 3600;
     }
 
     /*     * **********************Getteur Setteur*************************** */
