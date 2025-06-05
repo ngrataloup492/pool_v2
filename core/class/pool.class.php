@@ -323,6 +323,12 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Enable or disable devices based on pool configuration
+     * and current command values.
+     *
+     * @return void
+     */
     public function activatingDevices()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'activatingDevices() begin');
@@ -453,6 +459,12 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . 'activatingDevices() end');
     }
 
+    /**
+     * Convert a duration expressed in hours to seconds and formatted string.
+     *
+     * @param float $dureeHeures Duration in hours
+     * @return array Array with seconds and formatted time string
+     */
     public function processingTime($dureeHeures)
     {
         // Arrondi en minutes
@@ -475,6 +487,11 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Return the adjustment coefficient configured for filtration calculation.
+     *
+     * @return float Coefficient applied on runtime
+     */
     public function getCoefficientAjustement()
     {
         switch ($this->getConfiguration('coefficientAjustement', '10')) {
@@ -570,6 +587,12 @@ class pool extends eqLogic
         return $coeff;
     }
 
+    /**
+     * Compute filtration duration using a cubic polynomial curve.
+     *
+     * @param float $temperature_water Water temperature
+     * @return float Duration in hours
+     */
     public function calculateTimeFiltrationWithCurve($temperature_water)
     {
         // Pour assurer un temps minimum de filtration la temperature de calcul est forcée a 10°C
@@ -599,6 +622,12 @@ class pool extends eqLogic
         return $dureeHeures;
     }
 
+    /**
+     * Compute filtration time using the "water temperature divided by two" rule.
+     *
+     * @param float $temperature_water Water temperature
+     * @return float Duration in hours
+     */
     public function calculateTimeFiltrationWithTemperatureReducedByHalf($temperature_water)
     {
         // Calcul simplifié
@@ -615,6 +644,13 @@ class pool extends eqLogic
         return $dureeHeures;
     }
 
+    /**
+     * Calculate and schedule filtration runtime according to configuration.
+     *
+     * @param float $temperature_water Current water temperature
+     * @param bool  $flgTomorrow        True to plan for the next day
+     * @return void
+     */
     public function calculateTimeFiltration($temperature_water, $flgTomorrow)
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateTimeFiltration() begin');
@@ -926,6 +962,12 @@ class pool extends eqLogic
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateTimeFiltration() end');
     }
 
+    /**
+     * Update equipment commands based on calculated filtration period.
+     *
+     * @param float $temperature_water Current water temperature
+     * @return void
+     */
     public function calculateStatusFiltration($temperature_water)
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'calculateStatusFiltration() begin');
@@ -1493,6 +1535,11 @@ class pool extends eqLogic
 
     ///////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Read and normalize the configured water temperature command.
+     *
+     * @return float Current water temperature
+     */
     public function evaluateTemperatureWater()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureWater() begin');
@@ -1522,6 +1569,11 @@ class pool extends eqLogic
         return $temperature_water;
     }
 
+    /**
+     * Return the current water temperature and perform safety checks.
+     *
+     * @return float Measured water temperature
+     */
     public function getTemperatureWater()
     {
         $temperature = $this->getCmd(null, 'temperature');
@@ -1558,6 +1610,11 @@ class pool extends eqLogic
         return $temperature_water;
     }
 
+    /**
+     * Evaluate the outdoor temperature from configured commands.
+     *
+     * @return float Current outdoor temperature
+     */
     public function evaluateTemperatureOutdoor()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'evaluateTemperatureOutdoor() begin');
@@ -1587,6 +1644,11 @@ class pool extends eqLogic
         return $temperature_outdoor;
     }
 
+    /**
+     * Retrieve outdoor temperature and perform optional checks.
+     *
+     * @return float Measured outdoor temperature
+     */
     public function getTemperatureOutdoor()
     {
         if ($this->getConfiguration('cfgChauffage', 'enabled') == 'enabled' || $this->getHivernage()) {
@@ -1610,6 +1672,11 @@ class pool extends eqLogic
         return $temperature_outdoor;
     }
 
+    /**
+     * Evaluate sunrise time based on configured command.
+     *
+     * @return string Sunrise time in H:i format
+     */
     public function evaluateLeverSoleil()
     {
         // log::add('pool', 'debug', $this->getHumanName() . 'evaluateLeverSoleil() begin');
@@ -1639,6 +1706,11 @@ class pool extends eqLogic
         return $lever_soleil;
     }
 
+    /**
+     * Return the sunrise time, forcing a new read if needed.
+     *
+     * @return string Sunrise time
+     */
     public function getLeverSoleil()
     {
         if ($this->getHivernage()) {
@@ -1903,6 +1975,12 @@ class pool extends eqLogic
         }
     }
 
+    /**
+     * Start the filtration system.
+     *
+     * @param bool $_repeat True if triggered from a repeat action
+     * @return void
+     */
     public function filtrationOn($_repeat = false)
     {
         $cmdFiltration = $this->getCmd(null, 'filtration');
@@ -1936,6 +2014,12 @@ class pool extends eqLogic
         $cmdFiltration->event(1);
     }
 
+    /**
+     * Stop the filtration system.
+     *
+     * @param bool $_repeat True if triggered from a repeat action
+     * @return void
+     */
     public function filtrationStop($_repeat = false)
     {
         $cmdFiltration = $this->getCmd(null, 'filtration');
@@ -1992,6 +2076,12 @@ class pool extends eqLogic
         }
     }
 
+    /**
+     * Start the booster pump if configured.
+     *
+     * @param bool $_repeat True if triggered from a repeat action
+     * @return void
+     */
     public function surpresseurOn($_repeat = false)
     {
         $cmdSurpresseur = $this->getCmd(null, 'surpresseur');
@@ -2025,6 +2115,12 @@ class pool extends eqLogic
         $cmdSurpresseur->event(1);
     }
 
+    /**
+     * Stop the booster pump.
+     *
+     * @param bool $_repeat True if triggered from a repeat action
+     * @return void
+     */
     public function surpresseurStop($_repeat = false)
     {
         $cmdSurpresseur = $this->getCmd(null, 'surpresseur');
@@ -2081,6 +2177,12 @@ class pool extends eqLogic
         }
     }
 
+    /**
+     * Turn on the chemical treatment system.
+     *
+     * @param bool $_repeat True if triggered from a repeat action
+     * @return void
+     */
     public function traitementOn($_repeat = false)
     {
         $cmdTraitement = $this->getCmd(null, 'traitement');
@@ -2114,6 +2216,12 @@ class pool extends eqLogic
         $cmdTraitement->event(1);
     }
 
+    /**
+     * Stop the chemical treatment system.
+     *
+     * @param bool $_repeat True if triggered from a repeat action
+     * @return void
+     */
     public function traitementStop($_repeat = false)
     {
         $cmdTraitement = $this->getCmd(null, 'traitement');
@@ -2170,6 +2278,12 @@ class pool extends eqLogic
         }
     }
 
+    /**
+     * Start the heating system.
+     *
+     * @param bool $_repeat True if triggered from a repeat action
+     * @return void
+     */
     public function chauffageOn($_repeat = false)
     {
         $cmdChauffage = $this->getCmd(null, 'chauffage');
@@ -2203,6 +2317,12 @@ class pool extends eqLogic
         $cmdChauffage->event(1);
     }
 
+    /**
+     * Stop the heating system.
+     *
+     * @param bool $_repeat True if triggered from a repeat action
+     * @return void
+     */
     public function chauffageStop($_repeat = false)
     {
         $cmdChauffage = $this->getCmd(null, 'chauffage');
@@ -3580,6 +3700,13 @@ class pool extends eqLogic
 
     public function postRemove() {}
 
+    /**
+     * Compute filtration runtime between two dates.
+     *
+     * @param string|null $_startDate Start date
+     * @param string|null $_endDate   End date
+     * @return array List of runtime in seconds per day
+     */
     public function runtimeByDay($_startDate = null, $_endDate = null)
     {
         // log::add('pool', 'debug', 'runtimeByDay()');
@@ -3632,6 +3759,11 @@ class pool extends eqLogic
         return $return;
     }
 
+    /**
+     * Calculate manual runtime over the last 24 hours.
+     *
+     * @return int Seconds of manual runtime
+     */
     public function manualRuntimeLast24h()
     {
         $manualCmd = $this->getCmd(null, 'marcheForcee');
@@ -3673,11 +3805,22 @@ class poolCmd extends cmd
 
     /*     * *********************Methode d'instance************************* */
 
+    /**
+     * Prevent command deletion during update.
+     *
+     * @return bool Always true
+     */
     public function dontRemoveCmd()
     {
         return true;
     }
 
+    /**
+     * Execute action for a given command.
+     *
+     * @param array $_options Options array
+     * @return mixed Command execution result
+     */
     public function execute($_options = array())
     {
         $eqLogic = $this->getEqLogic();
